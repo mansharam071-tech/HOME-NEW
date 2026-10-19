@@ -1,0 +1,36 @@
+{
+  "summary": "Full retest at 390x844 after AuthProvider fix. SESSION PERSISTENCE BUG IS FIXED: login writes session to localStorage (hs_admin, 352 bytes), hard reload on /home stays on /home, and deep links /cities, /pricing, /finance, /alerts, /search all render data (no 'Not authenticated'). All other requested flows PASS end-to-end. Cities: city-card tap opens city-launch-modal, pincode-chip-input-field + pincode-add-btn adds pincode, city-surge-switch + 14 city-svc-* toggles + city-json-btn + city-save-btn present and save succeeds (modal closes); open-city-launch-btn opens creation form (city-name-input + city-state-input), save adds 'TestCityQA' (3->4 cards), re-opening its card shows city-delete-btn which opens city-delete-confirm, confirming deletes it (4->3 cards, 'TestCityQA deleted' toast). Pricing: pricing-seg-surge / pricing-seg-coupons both work; 3 surge-toggle-* visible and tappable; open-surge-dialog-btn opens dialog with surge-name-input + surge-save-btn (created 'QATestSurge'); open-coupon-dialog-btn opens coupon-code-input + coupon-value-input + coupon-save-btn (created 'QATEST10'); 4 delete buttons rendered. Finance: commission-default-inc/dec/save-btn all present and 'Commission saved'; generate-settlements-btn produced 4 settlements with 4 settlement-release-* buttons (clicking one shows 'Released INR 11,009.99 to Pooja Verma' toast and badge flips to COMPLETED); settlement-invoice-* chips also wired (opens settlement-invoice-dialog sheet with 'Commission tax invoice'); finance-seg-invoices shows 40 invoice-view-* rows, tapping opens invoice-sheet with full GST breakdown (CGST/SGST/UPI). Global search admin-global-search: 'HS' returns 5 booking results (HS251262/691783/185831/612714/383051), '98000' returns 5 customers (Meera/Kabir/Sana/Rohan/Ishita with 98000000xx phones), tapping a customer navigates to /bookings?q=9800000001. Alerts: 2 alert-action-* present, clicking first shows 'Action recorded' and list shrinks to 1. Bookings: 51 rows; tapping first row opens booking-detail-sheet with reassign-btn-* -> 5 assign-* options -> 'Job (re)assigned' and status chip updates ASSIGNED; another row has admin-cancel-btn-* -> confirm-cancel-btn -> 'Cancelled & refunded' and status flips to CANCELLED. Partners KYC: 2 kyc-expand-*, expanding reveals 4 kyc-approve-* and 4 kyc-reject-*; approving Aadhaar shows 'Aadhaar approved' and badge flips PENDING->APPROVED. Logout: admin-logout-btn redirects to /login, localStorage hs_admin is cleared (null), hard reload remains on /login. settle-cod-* and payout-pay-* could NOT be exercised in this run because the seeded data currently has no partner with cod_cash > 0 and no payout with status='requested' (they are conditionally rendered, testIDs are correctly wired in /app/frontend/app/(tabs)/partners.tsx lines 149 & 159). The three previously reported RN-web warnings (shadow* -> boxShadow, Animated useNativeDriver on web, charts.tsx) still fire but are non-blocking. The i18n foot-gun on login brand (Home<T>Serve</T>) is unchanged. No deprecated Expo packages detected (no expo-av/expo-barcode-scanner/expo-background-fetch).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Partners -> Settle COD / Payouts Mark paid", "issue": "Could not exercise settle-cod-* or payout-pay-* in this run because current seeded data has no partner with cod_cash > 0 and no payout in 'requested' status. testIDs are correctly wired; please seed one of each OR trigger via demo flow before next retest.", "affected_testIDs": ["settle-cod-*", "payout-pay-*"]}
+    ],
+    "design_issues": [
+      {"screen": "login.tsx hero", "issues": ["Brand split as Home<T>Serve</T> (line ~40). If HI dictionary ever maps 'Home' it will show HindiServe. Prefer a single <T>HomeServe</T> text node."]}
+    ],
+    "react_native_issues": [
+      {"component": "RN web shadow props", "issue": "'shadow*' style props are deprecated. Use 'boxShadow' (warning fires on every screen). Reference: /app/frontend/src/ui.tsx or theme.ts shadow helpers."},
+      {"component": "Animated useNativeDriver on web", "issue": "'useNativeDriver is not supported because the native animated module is missing.' Gate with Platform.OS !== 'web'. Reference: /app/frontend/src/ui.tsx animations."}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Session persistence fix VERIFIED - no further action needed on auth.tsx.",
+    "To make settle-cod-* and payout-pay-* fully testable in future runs, seed one partner with cod_cash>0 and one payout with status='requested' in demo data.",
+    "Replace shadow* RN style props with boxShadow (or Platform.select) in /app/frontend/src/ui.tsx (or theme.ts).",
+    "Gate useNativeDriver on native only (Platform.OS !== 'web') in ui.tsx animations.",
+    "Convert login brand to single <T>HomeServe</T> text node to avoid HI translation foot-gun."
+  ],
+  "critical_code_review_comments": [
+    "AuthProvider now correctly gates render on `ready` flag, writes to localStorage via web polyfill, and rehydrates on mount - deep link + reload verified working.",
+    "Finance settlement generation is idempotent and returns 4 rows for the current demo week; Release is non-reversible by design (becomes COMPLETED badge, GST inv. button remains)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "Not retested this iteration (frontend-only request). Previous iteration confirmed /api/auth/admin/login 200.", "frontend": "Session persistence 100% (fixed). Cities 100%. Pricing 100%. Finance 100% (commission + generate + release + invoice-view + sheet). Search 100%. Alerts 100%. Bookings reassign + cancel 100%. Partners KYC approve 100%. Logout 100%. settle-cod/payout-pay could not be exercised due to data state (testIDs wired, not a bug)."},
+  "seed_data_creation": "Created and cleaned up: 1 city (TestCityQA, deleted), 1 surge rule (QATestSurge, kept), 1 coupon (QATEST10, kept). Released 1 partner settlement to Pooja Verma. Cancelled 1 booking and reassigned 1 booking. Approved 1 Aadhaar doc for partner Anil Gupta.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All requested flows verified. Remaining nice-to-haves: (1) shadow*/useNativeDriver warnings cleanup in src/ui.tsx; (2) login brand single-node refactor; (3) seed demo data so settle-cod-* and payout-pay-* can be exercised. Admin creds admin@homeserve.in / Admin@123 from /app/memory/test_credentials.md work.",
+  "rca_of_issue": "Fix verified: AuthProvider in /app/frontend/src/auth.tsx now (a) persists session JSON to storage key 'hs_admin' after login via storage.setItem; (b) rehydrates on mount via storage.getItem before flipping `ready=true`; (c) gates child render on `ready` so neither /cities nor (tabs) layout fires an API call before the Authorization header is restored. storage/index.web.ts uses window.localStorage, so web picks up the token on reload. Verified: localStorage['hs_admin'] length 352 after login; reload /home -> stays; deep links /cities /pricing /finance /alerts /search all load data; logout clears key to null and reload stays on /login."
+}
