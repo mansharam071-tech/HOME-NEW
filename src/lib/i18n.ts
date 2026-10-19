@@ -92,7 +92,7 @@ const HI: Record<string, string> = {
   "Payment method": "भुगतान का तरीका",
   "UPI (GPay / PhonePe)": "UPI (GPay / PhonePe)",
   "Credit / Debit Card": "क्रेडिट / डेबिट कार्ड",
-  "HomeServe Wallet": "HomeServe वॉलेट",
+  "SMARTFIX Wallet": "SMARTFIX वॉलेट",
   "Cash after service": "सेवा के बाद नकद",
   Bal: "बैलेंस",
   "Item total": "आइटम कुल",

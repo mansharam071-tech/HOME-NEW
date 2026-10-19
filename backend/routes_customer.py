@@ -242,7 +242,7 @@ async def create_booking(body: BookingIn, user=Depends(customer)):
     bid = new_id("bk_")
     created = iso()
     online = body.payment_method in ("upi", "card") and payments_enabled()
-    b = {"id": bid, "booking_no": f"HS{100000 + secrets.randbelow(900000)}", "customer_id": user["id"], "partner_id": None,
+    b = {"id": bid, "booking_no": f"SF{100000 + secrets.randbelow(900000)}", "customer_id": user["id"], "partner_id": None,
          "lines": q["lines"], "category_ids": list({l["category_id"] for l in q["lines"]}),
          "address": {k: addr.get(k) for k in ("id", "label", "line", "pincode", "city", "location", "landmark", "audio_note")},
          "city_id": city["id"], "city_name": city["city_name"], "mode": body.mode,
@@ -368,7 +368,7 @@ async def invoice(bid: str, user=Depends(get_current_user)):
     cust = await db.users.find_one({"id": b["customer_id"]}, {"_id": 0, "name": 1, "phone": 1, "email": 1})
     city = await db.cities.find_one({"id": b["city_id"]}, {"_id": 0, "state": 1})
     return {"invoice_no": b["invoice_no"], "date": b.get("completed_at"), "booking_no": b["booking_no"],
-            "seller": {"name": "HomeServe Technologies Pvt. Ltd.", "gstin": "[GSTIN placeholder]",
+            "seller": {"name": "SMARTFIX Technologies Pvt. Ltd.", "gstin": "[GSTIN placeholder]",
                        "address": "[Registered office address placeholder]"},
             "buyer": {**(cust or {}), "address": b["address"]["line"], "pincode": b["address"]["pincode"]},
             "place_of_supply": (city or {}).get("state", ""), "sac": "998533", "gst_rate": GST_RATE,

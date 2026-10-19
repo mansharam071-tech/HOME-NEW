@@ -14,7 +14,7 @@ export default function Support() {
   const toast = useToast();
   const { t, lang } = useLang();
   const [seg, setSeg] = useState("chat");
-  const [msgs, setMsgs] = useState<Msg[]>([{ from: "bot", text: "Hi! I'm the HomeServe assistant. Ask me about refunds, cancellation, invoices, coupons or your partner's location." }]);
+  const [msgs, setMsgs] = useState<Msg[]>([{ from: "bot", text: "Hi! I'm the SMARTFIX assistant. Ask me about refunds, cancellation, invoices, coupons or your partner's location." }]);
   const [text, setText] = useState("");
   const [suggest, setSuggest] = useState(false);
   const [busy, setBusy] = useState(false);

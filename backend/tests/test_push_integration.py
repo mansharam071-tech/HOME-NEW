@@ -35,7 +35,7 @@ def customer(session):
 @pytest.fixture(scope="module")
 def admin(session):
     r = session.post(f"{BASE_URL}/api/auth/admin/login",
-                     json={"email": "admin@homeserve.in", "password": "Admin@123"})
+                     json={"email": "admin@smartfix.in", "password": "Admin@123"})
     assert r.status_code == 200, r.text
     j = r.json()
     return {"token": j["token"], "headers": {"Authorization": f"Bearer {j['token']}"}}
@@ -160,7 +160,7 @@ class TestPartnerLifecycleNonBlocking:
         ch = {"Authorization": f"Bearer {ctok}"}
         # admin
         ar = session.post(f"{BASE_URL}/api/auth/admin/login",
-                          json={"email": "admin@homeserve.in", "password": "Admin@123"})
+                          json={"email": "admin@smartfix.in", "password": "Admin@123"})
         assert ar.status_code == 200
         ah = {"Authorization": f"Bearer {ar.json()['token']}"}
         # partner

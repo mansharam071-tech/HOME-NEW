@@ -140,7 +140,7 @@ export default function Finance() {
       <Sheet open={!!view} onClose={() => setView(null)} title="Commission tax invoice" testID="settlement-invoice-dialog">
         {view && (
           <View style={{ gap: 2 }}>
-            <Row style={{ justifyContent: "space-between" }}><T v="bodyMedium">HomeServe Technologies Pvt. Ltd.</T><T v="mono">{view.gst_invoice_no}</T></Row>
+            <Row style={{ justifyContent: "space-between" }}><T v="bodyMedium">SMARTFIX Technologies Pvt. Ltd.</T><T v="mono">{view.gst_invoice_no}</T></Row>
             <T v="caption">{`GSTIN [placeholder] · ${view.partner_name} · ${fmtDate(view.period_start, lang)} → ${fmtDate(view.period_end, lang)}`}</T>
             <Divider />
             <KV k="Jobs" v={view.jobs} />

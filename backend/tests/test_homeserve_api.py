@@ -1,4 +1,4 @@
-# HomeServe ecosystem API regression tests (auth, catalog, cart/checkout, booking lifecycle, partner, admin, role isolation)
+# SMARTFIX ecosystem API regression tests (auth, catalog, cart/checkout, booking lifecycle, partner, admin, role isolation)
 import os
 import time
 import pytest
@@ -9,7 +9,7 @@ API = f"{BASE_URL}/api"
 CUST_PHONE, PARTNER_PHONE, OTP = "9999999999", "9000000001", "1234"
 import random
 NEW_PARTNER = f"91{random.randint(10000000, 99999999)}"
-ADMIN = {"email": "admin@homeserve.in", "password": "Admin@123"}
+ADMIN = {"email": "admin@smartfix.in", "password": "Admin@123"}
 
 
 def otp_login(phone, role):

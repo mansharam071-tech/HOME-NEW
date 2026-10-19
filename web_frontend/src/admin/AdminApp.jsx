@@ -40,7 +40,7 @@ const Login = ({ onDone }) => {
   return (
     <div className="grid min-h-screen place-items-center bg-[#0F172A] phone-bg p-6">
       <form onSubmit={submit} className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl" data-testid="admin-login-form">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#F59E0B]">HomeServe Ops</p>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#F59E0B]">SMARTFIX Ops</p>
         <h1 className="font-heading mt-2 text-3xl font-extrabold">Admin console</h1>
         <Input data-testid="admin-login-email" className="mt-6 h-11" placeholder="Email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Input data-testid="admin-login-password" className="mt-3 h-11" type="password" placeholder="Password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
@@ -123,7 +123,7 @@ export default function AdminApp() {
     <div className="min-h-screen bg-[#F8FAFC]">
       <aside className="fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col bg-[#0F172A] text-slate-300" data-testid="admin-sidebar">
         <div className="px-6 py-6">
-          <p translate="no" className="font-heading text-2xl font-extrabold text-white">Home<span className="text-[#F59E0B]">Serve</span></p>
+          <p translate="no" className="font-heading text-2xl font-extrabold text-white">SMART<span className="text-[#F59E0B]">FIX</span></p>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Operations console</p>
         </div>
         <nav className="flex-1 space-y-1 px-3">

@@ -1,4 +1,4 @@
-# Auth Testing Playbook (HomeServe)
+# Auth Testing Playbook (SMARTFIX)
 - Admin: POST /api/auth/admin/login {email, password} -> {token, user}. Bearer token in Authorization header (no cookies). 5 failed attempts -> 15 min lockout (login_attempts collection).
 - Customer/Partner: POST /api/auth/otp/send {phone, role} then POST /api/auth/otp/verify {phone, otp:"1234", role} -> {token, user, is_new}.
 - GET /api/auth/me with Bearer token returns user without password_hash.

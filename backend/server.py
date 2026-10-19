@@ -13,12 +13,12 @@ from push import router as push_router
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-app = FastAPI(title="HomeServe Common API", version="1.0")
+app = FastAPI(title="SMARTFIX Common API", version="1.0")
 
 
 @app.get("/api/")
 async def root():
-    return {"message": "HomeServe common API", "modules": ["customer", "partner", "admin"]}
+    return {"message": "SMARTFIX common API", "modules": ["customer", "partner", "admin"]}
 
 
 for r in (auth_router, customer_router, partner_router, admin_router, payments_router, push_router):

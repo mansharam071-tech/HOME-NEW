@@ -37,7 +37,7 @@ const CommInvoice = ({ s, onClose }) => (
       <DialogHeader><DialogTitle>Commission tax invoice</DialogTitle></DialogHeader>
       {s && (
         <div className="space-y-1.5 text-sm" id="invoice-print">
-          <div className="flex justify-between"><b>HomeServe Technologies Pvt. Ltd.</b><span className="font-mono text-xs">{s.gst_invoice_no}</span></div>
+          <div className="flex justify-between"><b>SMARTFIX Technologies Pvt. Ltd.</b><span className="font-mono text-xs">{s.gst_invoice_no}</span></div>
           <p className="text-xs text-slate-500">GSTIN [placeholder] · Billed to {s.partner_name} · {fmtDate(s.period_start)} → {fmtDate(s.period_end)}</p>
           {[["Jobs", s.jobs], ["Gross job value", inr(s.gross)], ["Platform commission", inr(s.commission)], ["GST on commission (18%)", inr(s.commission_gst)], ["Partner earnings", inr(s.earnings)], ["Tips", inr(s.tips)], ["Penalties", `- ${inr(s.penalties)}`]].map(([k, v]) => <div key={k} className="flex justify-between border-b py-1"><span>{k}</span><span>{v}</span></div>)}
           <div className="flex justify-between pt-1 text-base font-bold"><span>Net payable to partner</span><span>{inr(s.net_payable)}</span></div>

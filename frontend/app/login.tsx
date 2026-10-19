@@ -40,7 +40,7 @@ export default function Login() {
         <LinearGradient colors={[colors.brand, "#172554"]} style={[styles.hero, { paddingTop: insets.top + spacing["2xl"] }]}>
           <View style={styles.blob1} /><View style={styles.blob2} />
           <View style={styles.logo}><Icon name="home" size={22} color={colors.onBrandSecondary} /></View>
-          <T v="label" color={colors.brandTertiary}>HomeServe</T>
+          <T v="label" color={colors.brandTertiary}>SMARTFIX</T>
           <T v="display" color={colors.onBrand} style={{ fontSize: 30, lineHeight: 38, marginTop: spacing.sm }}>Home services, done right.</T>
           <T v="body" color={colors.brandTertiary} style={{ marginTop: spacing.xs }}>Verified professionals at your doorstep in 30 minutes.</T>
         </LinearGradient>

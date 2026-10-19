@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { capi, errMsg, fmtDT } from "@/lib/api";
 
 export default function CSupport() {
-  const [msgs, setMsgs] = useState([{ from: "bot", text: "Hi! I'm the HomeServe assistant. Ask me about refunds, cancellation, invoices, coupons or your partner's location." }]);
+  const [msgs, setMsgs] = useState([{ from: "bot", text: "Hi! I'm the SMARTFIX assistant. Ask me about refunds, cancellation, invoices, coupons or your partner's location." }]);
   const [text, setText] = useState("");
   const [tickets, setTickets] = useState([]);
   const [suggest, setSuggest] = useState(false);

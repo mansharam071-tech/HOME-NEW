@@ -140,7 +140,7 @@ def make_booking(cust, prt, lines, addr, city, status, created, rating=None, met
     p = finalize({"subtotal": sub, "surge_multiplier": mult, "surge_amount": r2(sub * (mult - 1)), "discount": 0,
                   "coupon_code": None, "extras_total": 0})
     rate = 0.18
-    b = {"id": new_id("bk_"), "booking_no": f"HS{random.randint(100000, 999999)}", "customer_id": cust["id"],
+    b = {"id": new_id("bk_"), "booking_no": f"SF{random.randint(100000, 999999)}", "customer_id": cust["id"],
          "partner_id": prt["id"] if prt and status != "pending" else None, "lines": lines,
          "category_ids": list({l["category_id"] for l in lines}), "address": addr, "city_id": city["id"],
          "city_name": city["city_name"], "mode": "instant", "slot_date": created[:10], "slot_time": "ASAP (30-45 min)",

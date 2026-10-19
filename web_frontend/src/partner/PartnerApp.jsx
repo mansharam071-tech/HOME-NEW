@@ -45,7 +45,7 @@ const SOS = () => {
         <AlertDialogContent className="max-w-sm" data-testid="sos-confirm-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-[#EF4444]">Send emergency SOS?</AlertDialogTitle>
-            <AlertDialogDescription>Your live location will be shared with the HomeServe safety team immediately.</AlertDialogDescription>
+            <AlertDialogDescription>Your live location will be shared with the SMARTFIX safety team immediately.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel data-testid="sos-cancel-btn">Cancel</AlertDialogCancel>
@@ -70,7 +70,7 @@ export default function PartnerApp() {
       <Ctx.Provider value={{ user: sess?.user, setSess, logout }}>
         <div className="relative flex-1 overflow-y-auto bg-[#F4F5F7] no-scrollbar">
           <Routes>
-            <Route path="login" element={<OtpLogin role="partner" accent="#0F172A" title="Earn more. Work your way." subtitle="Partner app for verified HomeServe professionals."
+            <Route path="login" element={<OtpLogin role="partner" accent="#0F172A" title="Earn more. Work your way." subtitle="Partner app for verified SMARTFIX professionals."
               hint="New partners start with KYC document verification before going online."
               onDone={(d) => { setSess({ token: d.token, user: d.user }); nav(d.user.kyc_status === "approved" ? "/partner" : "/partner/profile"); }} />} />
             <Route index element={<PDashboard />} />

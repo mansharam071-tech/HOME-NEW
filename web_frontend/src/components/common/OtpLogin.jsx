@@ -41,7 +41,7 @@ export const OtpLogin = ({ role, title, subtitle, accent = "#1E3A8A", onDone, hi
       <div className="relative overflow-hidden px-6 pb-10 pt-14 text-white" style={{ background: accent }}>
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
         <div className="absolute -bottom-16 right-16 h-32 w-32 rounded-full bg-[#F59E0B]/30" />
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">HomeServe</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">SMARTFIX</p>
         <h1 className="font-heading mt-3 text-3xl font-extrabold leading-tight">{title}</h1>
         <p className="mt-2 text-sm text-white/80">{subtitle}</p>
       </div>

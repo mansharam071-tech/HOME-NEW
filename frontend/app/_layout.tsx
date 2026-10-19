@@ -51,7 +51,7 @@ const PushNudge = ({ open, onDone }: { open: boolean; onDone: () => void }) => {
   };
   return (
     <Sheet open={open} onClose={() => done(false)} title="Turn on booking alerts" testID="push-nudge-sheet">
-      <T v="body" color={colors.onSurfaceTertiary}>Get notified when your professional is assigned, on the way, or when the job is done. Notifications are off for HomeServe.</T>
+      <T v="body" color={colors.onSurfaceTertiary}>Get notified when your professional is assigned, on the way, or when the job is done. Notifications are off for SMARTFIX.</T>
       <Button testID="push-nudge-settings-btn" title="Open Settings" icon="settings-outline" onPress={() => done(true)} />
       <Button testID="push-nudge-later-btn" variant="ghost" title="Later" onPress={() => done(false)} />
     </Sheet>

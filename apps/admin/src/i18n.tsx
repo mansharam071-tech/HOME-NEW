@@ -5,7 +5,7 @@ import { HI_ADMIN, ADMIN_PATTERNS } from "./i18n_admin";
 const EXTRA: Record<string, string> = {
   Home: "होम", Bookings: "बुकिंग", Partners: "पार्टनर", More: "और",
   "Admin console": "एडमिन कंसोल", "Sign in": "साइन इन करें", Email: "ईमेल", Password: "पासवर्ड",
-  "Enter email and password": "ईमेल और पासवर्ड डालें", "HomeServe Ops": "HomeServe ऑप्स",
+  "Enter email and password": "ईमेल और पासवर्ड डालें", "SMARTFIX Ops": "SMARTFIX ऑप्स",
   "Manage bookings, partners, cities and payouts on the go.": "चलते-फिरते बुकिंग, पार्टनर, शहर और पेआउट संभालें।",
   "Good day,": "नमस्ते,", "Failed to load": "लोड नहीं हो पाया", Retry: "फिर से कोशिश करें",
   Daily: "दैनिक", Weekly: "साप्ताहिक", Bookings_: "बुकिंग", "See all": "सभी देखें",

@@ -22,7 +22,7 @@ export const payWithRazorpay = async (order, { user, method, description }) => {
       amount: order.amount,
       currency: order.currency,
       order_id: order.order_id,
-      name: "HomeServe",
+      name: "SMARTFIX",
       description,
       prefill: { name: user?.name || "", email: user?.email || "", contact: user?.phone ? `+91${user.phone}` : "", method },
       theme: { color: "#1E3A8A" },

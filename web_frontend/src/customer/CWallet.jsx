@@ -22,7 +22,7 @@ export default function CWallet() {
   return (
     <div className="pb-24">
       <div className="bg-[#1E3A8A] px-5 pb-8 pt-6 text-white">
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/60">HomeServe Wallet</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-white/60">SMARTFIX Wallet</p>
         <p data-testid="wallet-balance" className="font-heading mt-2 text-4xl font-extrabold">{inr(w.balance)}</p>
         <p className="mt-1 text-xs text-white/70">Cashbacks, refunds & promo rewards live here</p>
         <div className="mt-5 flex gap-2">

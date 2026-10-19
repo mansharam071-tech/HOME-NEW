@@ -14,7 +14,7 @@ const SLOTS = ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM", "03:30 PM", "05:0
 const PAY: { id: string; label: string; icon: IconName }[] = [
   { id: "upi", label: "UPI (GPay / PhonePe)", icon: "phone-portrait-outline" },
   { id: "card", label: "Credit / Debit Card", icon: "card-outline" },
-  { id: "wallet", label: "HomeServe Wallet", icon: "wallet-outline" },
+  { id: "wallet", label: "SMARTFIX Wallet", icon: "wallet-outline" },
   { id: "cod", label: "Cash after service", icon: "cash-outline" },
 ];
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;

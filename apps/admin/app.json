@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "HomeServe Admin",
-    "slug": "homeserve-admin",
-    "scheme": "homeserveadmin",
+    "name": "SMARTFIX Admin",
+    "slug": "smartfix-admin",
+    "scheme": "smartfixadmin",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",

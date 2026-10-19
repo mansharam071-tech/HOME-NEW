@@ -31,7 +31,7 @@ export default function Wallet() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.onBrand} />}>
         <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
           <View style={styles.blob} />
-          <T v="label" color="rgba(255,255,255,0.7)">HomeServe Wallet</T>
+          <T v="label" color="rgba(255,255,255,0.7)">SMARTFIX Wallet</T>
           {loading && !data ? <Skeleton h={44} style={{ width: 160, marginTop: spacing.sm, opacity: 0.3 }} /> :
             <T v="display" color={colors.onBrand} style={{ fontSize: 40, lineHeight: 50, marginTop: spacing.sm }} testID="wallet-balance">{inr(data?.balance)}</T>}
           <T v="caption" color="rgba(255,255,255,0.75)">Cashbacks, refunds & promo rewards live here</T>

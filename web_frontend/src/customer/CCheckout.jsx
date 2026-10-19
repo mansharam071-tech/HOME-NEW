@@ -13,7 +13,7 @@ const SLOTS = ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM", "03:30 PM", "05:0
 const PAY = [
   { id: "upi", label: "UPI (GPay / PhonePe)", icon: Smartphone },
   { id: "card", label: "Credit / Debit Card", icon: CreditCard },
-  { id: "wallet", label: "HomeServe Wallet", icon: Wallet },
+  { id: "wallet", label: "SMARTFIX Wallet", icon: Wallet },
   { id: "cod", label: "Cash after service", icon: Banknote },
 ];
 const days = () => Array.from({ length: 5 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; });

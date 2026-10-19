@@ -1,4 +1,4 @@
-# Supplementary HomeServe regression tests: decline penalty, en_route fee, coupons, settlements/payouts, partner admin actions, auth playbook
+# Supplementary SMARTFIX regression tests: decline penalty, en_route fee, coupons, settlements/payouts, partner admin actions, auth playbook
 import os
 import time
 import requests
@@ -32,7 +32,7 @@ def ptok():
 
 @pytest.fixture(scope="module")
 def atok():
-    r = requests.post(f"{API}/auth/admin/login", json={"email": "admin@homeserve.in", "password": "Admin@123"})
+    r = requests.post(f"{API}/auth/admin/login", json={"email": "admin@smartfix.in", "password": "Admin@123"})
     assert r.status_code == 200
     return r.json()["token"]
 

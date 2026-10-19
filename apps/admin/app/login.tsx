@@ -37,15 +37,15 @@ export default function Login() {
           <View style={{ paddingTop: insets.top + spacing.xl, paddingHorizontal: spacing.xl, gap: spacing.sm }}>
             <View style={styles.logo}><Icon name="construct" size={22} color={colors.onBrandSecondary} /></View>
             <T v="display" color={colors.onBrand} style={{ fontSize: 30, lineHeight: 38 }}>
-              Home<T v="display" color={colors.brandSecondary} style={{ fontSize: 30, lineHeight: 38 }}>Serve</T>
+              SMART<T v="display" color={colors.brandSecondary} style={{ fontSize: 30, lineHeight: 38 }}>FIX</T>
             </T>
-            <T v="label" color={colors.brandTertiary}>HomeServe Ops</T>
+            <T v="label" color={colors.brandTertiary}>SMARTFIX Ops</T>
           </View>
         </View>
         <View style={styles.form}>
           <T v="title">Admin console</T>
           <T v="body" color={colors.muted}>Manage bookings, partners, cities and payouts on the go.</T>
-          <Input testID="admin-login-email" label="Email" placeholder="admin@homeserve.in" value={email} onChangeText={setEmail}
+          <Input testID="admin-login-email" label="Email" placeholder="admin@smartfix.in" value={email} onChangeText={setEmail}
             autoCapitalize="none" keyboardType="email-address" autoComplete="email" returnKeyType="next" />
           <View>
             <Input testID="admin-login-password" label="Password" placeholder="••••••••" value={pw} onChangeText={setPw}

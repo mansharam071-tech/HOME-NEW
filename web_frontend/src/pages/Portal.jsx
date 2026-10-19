@@ -15,7 +15,7 @@ export default function Portal() {
           <Database className="h-4 w-4" /> One database · One API · Three apps
         </div>
         <h1 className="font-heading mt-5 max-w-3xl text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
-          HomeServe <span className="text-[#F59E0B]">ecosystem</span> for trusted at-home services.
+          SMARTFIX <span className="text-[#F59E0B]">ecosystem</span> for trusted at-home services.
         </h1>
         <p className="mt-5 max-w-xl text-base text-slate-400">
           Every booking flows live between the customer, the technician and operations. Open the modules side by side to watch it happen.
