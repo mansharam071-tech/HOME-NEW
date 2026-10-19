@@ -145,3 +145,67 @@ class TestPartnerOffer:
         assert r.status_code == 200, r.text
         # key sanity
         assert "profile" in r.json()
+
+
+# -------------- Partner lifecycle regression (push non-blocking) --------------
+class TestPartnerLifecycleNonBlocking:
+    """Create fresh booking, admin assigns a partner, partner drives
+    en_route -> arrived -> start (needs OTP) -> complete. All timeline
+    transitions trigger push_timeline() -> must not block."""
+
+    @pytest.fixture(scope="class")
+    def ctx(self, session):
+        # customer
+        ctok, cuser = _otp_login(session, "9800000001", "customer")
+        ch = {"Authorization": f"Bearer {ctok}"}
+        # admin
+        ar = session.post(f"{BASE_URL}/api/auth/admin/login",
+                          json={"email": "admin@homeserve.in", "password": "Admin@123"})
+        assert ar.status_code == 200
+        ah = {"Authorization": f"Bearer {ar.json()['token']}"}
+        # partner
+        ptok, puser = _otp_login(session, "9000000001", "partner")
+        ph = {"Authorization": f"Bearer {ptok}"}
+
+        # New address + fresh COD booking
+        addr = session.post(f"{BASE_URL}/api/customer/addresses", headers=ch,
+                            json={"label": "TEST_push_life", "line": "TEST lifecycle",
+                                  "pincode": "226010", "location": {"lat": 26.85, "lng": 80.95}}).json()
+        session.delete(f"{BASE_URL}/api/customer/cart", headers=ch)
+        svcs = session.get(f"{BASE_URL}/api/catalog/services").json()
+        svc_id = next(s["id"] for s in (svcs if isinstance(svcs, list) else svcs.get("services", [])) if s.get("price"))
+        session.post(f"{BASE_URL}/api/customer/cart/items", headers=ch,
+                     json={"service_id": svc_id, "qty": 1, "addon_ids": []})
+        bk = session.post(f"{BASE_URL}/api/customer/bookings", headers=ch,
+                          json={"address_id": addr["id"], "mode": "instant",
+                                "payment_method": "cod"}).json()
+        bid = bk["id"]
+        # Admin reassign to our partner
+        rr = session.post(f"{BASE_URL}/api/admin/bookings/{bid}/reassign",
+                          headers=ah, json={"partner_id": puser["id"]})
+        assert rr.status_code in (200, 201), rr.text
+        return {"bid": bid, "ch": ch, "ah": ah, "ph": ph, "cuser": cuser, "puser": puser}
+
+    def test_navigate_en_route(self, session, ctx):
+        r = session.post(f"{BASE_URL}/api/partner/jobs/{ctx['bid']}/navigate", headers=ctx["ph"])
+        assert r.status_code == 200, r.text
+        assert r.json().get("ok") is True
+
+    def test_arrived(self, session, ctx):
+        r = session.post(f"{BASE_URL}/api/partner/jobs/{ctx['bid']}/arrived", headers=ctx["ph"])
+        assert r.status_code == 200, r.text
+
+    def test_start_and_complete(self, session, ctx):
+        # Fetch booking to get OTPs via admin view
+        b = session.get(f"{BASE_URL}/api/admin/bookings/{ctx['bid']}", headers=ctx["ah"]).json()
+        s_otp, e_otp = b.get("start_otp"), b.get("end_otp")
+        assert s_otp and e_otp, f"booking missing OTPs: {b}"
+        r = session.post(f"{BASE_URL}/api/partner/jobs/{ctx['bid']}/start",
+                         headers=ctx["ph"], json={"otp": s_otp})
+        assert r.status_code == 200, r.text
+        r = session.post(f"{BASE_URL}/api/partner/jobs/{ctx['bid']}/complete",
+                         headers=ctx["ph"], json={"otp": e_otp})
+        assert r.status_code == 200, r.text
+        # Verify completed persisted
+        b2 = session.get(f"{BASE_URL}/api/admin/bookings/{ctx['bid']}", headers=ctx["ah"]).json()
+        assert b2.get("status") == "completed"
