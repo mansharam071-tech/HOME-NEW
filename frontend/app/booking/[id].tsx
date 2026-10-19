@@ -7,6 +7,7 @@ import { api, errMsg, fmtDT, inr, useApi } from "@/src/api";
 import { useCart } from "@/src/cart";
 import { useLang } from "@/src/i18n";
 import TrackMap from "@/src/TrackMap";
+import { payMessage, useRazorpay } from "@/src/razorpay";
 import { Badge, Button, Divider, ErrorBox, Icon, IconBtn, Input, KV, Press, Row, Sheet, Skeleton, T, useToast } from "@/src/ui";
 import { colors, fonts, radius, spacing } from "@/src/theme";
 import { ActivityIndicator } from "react-native";
@@ -135,6 +136,7 @@ export default function Tracking() {
   const toast = useToast();
   const { t } = useLang();
   const { refresh } = useCart();
+  const pay = useRazorpay();
   const { data: b, error, reload } = useApi<any>(`/customer/bookings/${id}`, undefined, 3000);
   const [chat, setChat] = useState(false);
   const [invoice, setInvoice] = useState(false);
@@ -164,8 +166,10 @@ export default function Tracking() {
   });
   const payBalance = () => run("bal", async () => {
     const d = await api(`/customer/bookings/${b.id}/pay-balance`, { method: "POST" });
-    if (d.razorpay) await api("/payments/cancel", { method: "POST", body: { order_id: d.razorpay.order_id, reason: "Online payment not available in app yet" } }).catch(() => {});
-    toast("Online payment is not available in the app yet", "error");
+    if (!d.razorpay) { toast("Balance paid"); reload(); return; }
+    const r = await pay(d.razorpay, `${t("Balance for")} ${b.booking_no}`);
+    toast(payMessage(r), r === "paid" ? "success" : "error");
+    reload();
   });
   const rebook = () => run("rebook", async () => { await api(`/customer/bookings/${b.id}/rebook`, { method: "POST" }); await refresh(); router.push("/checkout"); });
   const masked = () => run("call", async () => setCall(await api(`/bookings/${b.id}/call`, { method: "POST" })));

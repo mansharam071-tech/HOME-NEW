@@ -23,7 +23,11 @@ const EXTRA: Record<string, string> = {
   "Cancel booking": "बुकिंग रद्द करें", "Cancel this booking? Fees apply as per policy.": "यह बुकिंग रद्द करें? नीति के अनुसार शुल्क लगेगा।", "Yes, cancel": "हाँ, रद्द करें", "Keep booking": "बुकिंग रखें",
   "Finding the best verified partner near you…": "आपके पास सबसे अच्छा सत्यापित पार्टनर ढूँढ रहे हैं…", "Share Start OTP": "स्टार्ट OTP बताएँ", "End OTP (share when done)": "एंड OTP (काम पूरा होने पर बताएँ)",
   Confirmed: "कन्फ़र्म", "Job Started": "काम शुरू", "Extra parts / charges": "अतिरिक्त पार्ट्स / शुल्क", "Balance due for approved extras": "स्वीकृत अतिरिक्त का बकाया", Help: "मदद",
-  "Your location": "आपकी लोकेशन", Technician: "टेक्नीशियन", "Choose a different address": "दूसरा पता चुनें", "Live map is available in the mobile app": "लाइव मैप मोबाइल ऐप में उपलब्ध है",
+  "Your location": "आपकी लोकेशन",
+  "Didn't catch that, please try again": "समझ नहीं आया, फिर से बोलें", "Voice input failed, please try again": "आवाज़ इनपुट विफल, फिर से कोशिश करें",
+  "Could not start the microphone": "माइक्रोफ़ोन शुरू नहीं हो सका", "Allow microphone": "माइक्रोफ़ोन की अनुमति दें", "Microphone permission": "माइक्रोफ़ोन अनुमति",
+  "Speak instead of typing — we use the mic only while you hold a voice search or chat.": "लिखने की जगह बोलें — माइक सिर्फ़ वॉइस सर्च या चैट के समय इस्तेमाल होता है।",
+  "Microphone is off for SMARTFIX. Enable it in Settings to search and chat by voice.": "SMARTFIX के लिए माइक बंद है। आवाज़ से खोजने और चैट के लिए सेटिंग्स में चालू करें।", Technician: "टेक्नीशियन", "Choose a different address": "दूसरा पता चुनें", "Live map is available in the mobile app": "लाइव मैप मोबाइल ऐप में उपलब्ध है",
 };
 
 const DICT: Record<string, string> = { ...HI, ...EXTRA };

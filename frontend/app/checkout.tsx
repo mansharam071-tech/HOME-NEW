@@ -6,6 +6,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, errMsg, inr, useApi } from "@/src/api";
 import { useCart } from "@/src/cart";
+import { payMessage, useRazorpay } from "@/src/razorpay";
 import { useLang } from "@/src/i18n";
 import { Button, Card, Empty, Icon, IconName, KV, Press, Row, ScreenHeader, Skeleton, T, useToast, Divider } from "@/src/ui";
 import { colors, fonts, radius, spacing } from "@/src/theme";
@@ -26,6 +27,7 @@ export default function Checkout() {
   const toast = useToast();
   const { t, lang } = useLang();
   const { address, setAddress, refresh } = useCart();
+  const openRazorpay = useRazorpay();
   const [cart, setCart] = useState<any>(null);
   const [mode, setMode] = useState("instant");
   const [date, setDate] = useState(ymd(new Date()));
@@ -63,9 +65,11 @@ export default function Checkout() {
         address_id: addr?.id, mode, slot_date: mode === "scheduled" ? date : null, slot_time: mode === "scheduled" ? slot : null, payment_method: pay, coupon_code: applied || null,
       } });
       if (d.razorpay) {
-        await api("/payments/cancel", { method: "POST", body: { order_id: d.razorpay.order_id, reason: "Online payment not available in app yet" } }).catch(() => {});
-        toast("Online payment is not available in the app yet — choose Wallet or Cash", "error");
-        setBusy(false);
+        await refresh();
+        const r = await openRazorpay(d.razorpay, `${t("Booking")} ${d.booking_no}`);
+        toast(payMessage(r), r === "paid" ? "success" : "error");
+        if (r === "paid") router.replace(`/booking/${d.id}`);
+        else setBusy(false);
         return;
       }
       await refresh();

@@ -10,6 +10,7 @@ import { CartBar, useCart } from "@/src/cart";
 import { useGps } from "@/src/gps";
 import { useLang } from "@/src/i18n";
 import { usesNativeTabs } from "@/src/navigation";
+import VoiceButton from "@/src/VoiceButton";
 import { Button, Icon, IconBtn, IconName, Press, Row, Sheet, Skeleton, T, useToast } from "@/src/ui";
 import { colors, fonts, radius, spacing } from "@/src/theme";
 
@@ -128,6 +129,7 @@ export default function Home() {
           <TextInput testID="home-search-input" value={q} onChangeText={setQ} placeholder={t("Search 'AC repair', 'cleaning'…")} placeholderTextColor={colors.muted}
             style={styles.searchInput} returnKeyType="search" onSubmitEditing={() => q.trim() && router.push({ pathname: "/services", params: { q: q.trim() } })} />
           {q ? <Icon testID="home-search-go" name="arrow-forward-circle" size={24} color={colors.brand} onPress={() => router.push({ pathname: "/services", params: { q: q.trim() } })} /> : null}
+          <VoiceButton testID="home-voice-search-btn" size={34} onText={(txt) => { const s = txt.replace(/[.?!]+$/, "").trim(); setQ(s); router.push({ pathname: "/services", params: { q: s } }); }} />
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingTop: spacing.lg, paddingBottom: bottomChrome + 96, gap: spacing.xl }}

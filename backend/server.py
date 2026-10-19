@@ -10,6 +10,7 @@ from routes_admin import router as admin_router
 from routes_payments import router as payments_router
 from seed import seed_admin, seed_data, ensure_indexes
 from push import router as push_router
+from routes_voice import router as voice_router
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
@@ -21,7 +22,7 @@ async def root():
     return {"message": "SMARTFIX common API", "modules": ["customer", "partner", "admin"]}
 
 
-for r in (auth_router, customer_router, partner_router, admin_router, payments_router, push_router):
+for r in (auth_router, customer_router, partner_router, admin_router, payments_router, push_router, voice_router):
     app.include_router(r)
 
 app.add_middleware(

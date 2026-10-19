@@ -29,3 +29,6 @@
 - P0: Security fixes (real OTP via SMS, admin password, JWT secret rotation, CORS)
 - P1: Razorpay native checkout in app; audio landmark note; avatar upload (object storage)
 - P2: Geofence map editor in admin app
+- Oct 2026: Speech-to-text (Emergent managed, gpt-4o-mini-transcribe) – POST /api/transcribe; mic VoiceButton (expo-audio, silence auto-stop, permission sheet) on Home search + Support chatbot
+- Oct 2026: Razorpay in mobile app – WebView Standard Checkout (native) / checkout.js (web) for booking UPI/Card, wallet top-up, balance due; server verify + cancel; activates when RAZORPAY_KEY_ID/SECRET set (currently demo mode)
+- Pending user inputs: Razorpay test keys, Twilio (SID/Auth Token/Verify SID), Gemini use-case, Google/Apple sign-in scope, google-services.json (Android package: com.emergent.trimoduleapp.q7iy0v)

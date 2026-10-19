@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AuthProvider } from "@/src/auth";
 import { CartProvider } from "@/src/cart";
+import { RazorpayProvider } from "@/src/razorpay";
 import { Button, Sheet, T, ToastProvider } from "@/src/ui";
 import { storage } from "@/src/utils/storage";
 import { colors } from "@/src/theme";
@@ -101,9 +102,11 @@ export default function RootLayout() {
           <AuthProvider>
             <CartProvider>
               <ToastProvider>
-                <StatusBar style="dark" />
-                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
-                <PushNudge open={nudge} onDone={() => setNudge(false)} />
+                <RazorpayProvider>
+                  <StatusBar style="dark" />
+                  <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
+                  <PushNudge open={nudge} onDone={() => setNudge(false)} />
+                </RazorpayProvider>
               </ToastProvider>
             </CartProvider>
           </AuthProvider>

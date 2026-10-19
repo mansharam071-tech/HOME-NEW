@@ -6,6 +6,7 @@ import { api, errMsg, fmtDT, useApi } from "@/src/api";
 import { useLang } from "@/src/i18n";
 import { Button, Icon, IconBtn, Row, ScreenHeader, Segmented, T, useToast, Empty } from "@/src/ui";
 import { colors, fonts, radius, spacing } from "@/src/theme";
+import VoiceButton from "@/src/VoiceButton";
 
 type Msg = { from: "bot" | "me"; text: string };
 
@@ -62,6 +63,7 @@ export default function Support() {
           <Row style={[styles.inputBar, { paddingBottom: insets.bottom + spacing.md }]}>
             <TextInput testID="chatbot-input" value={text} onChangeText={setText} placeholder={t("Type your question")} placeholderTextColor={colors.muted}
               style={styles.input} returnKeyType="send" onSubmitEditing={ask} />
+            <VoiceButton testID="chatbot-voice-btn" size={44} onText={(txt) => setText((cur) => (cur ? `${cur} ${txt}` : txt))} />
             <IconBtn testID="chatbot-send-btn" name="send" color={colors.onBrand} bg={colors.brand} onPress={ask} />
           </Row>
         </KeyboardAvoidingView>

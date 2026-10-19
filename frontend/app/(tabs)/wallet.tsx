@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, errMsg, fmtDT, inr, useApi } from "@/src/api";
 import { useLang } from "@/src/i18n";
 import { usesNativeTabs } from "@/src/navigation";
+import { payMessage, useRazorpay } from "@/src/razorpay";
 import { Empty, ErrorBox, Icon, Press, Row, Skeleton, T, useToast } from "@/src/ui";
 import { colors, radius, spacing } from "@/src/theme";
 import { ActivityIndicator } from "react-native";
@@ -13,6 +14,7 @@ export default function Wallet() {
   const toast = useToast();
   const { lang } = useLang();
   const { data, loading, error, refreshing, refresh, reload } = useApi<any>("/customer/wallet");
+  const pay = useRazorpay();
   const [busy, setBusy] = useState<number | null>(null);
   const bottomChrome = usesNativeTabs ? insets.bottom : 0;
   const topup = async (amount: number) => {
@@ -20,8 +22,9 @@ export default function Wallet() {
     try {
       const d = await api("/customer/wallet/topup", { method: "POST", params: { amount } });
       if (d.razorpay) {
-        await api("/payments/cancel", { method: "POST", body: { order_id: d.razorpay.order_id, reason: "Online payment not available in app yet" } }).catch(() => {});
-        toast("Online payment is not available in the app yet", "error");
+        const r = await pay(d.razorpay, "Wallet top-up");
+        toast(r === "paid" ? `${inr(amount)} added to wallet` : payMessage(r), r === "paid" ? "success" : "error");
+        reload();
       } else { toast(`${inr(amount)} added (demo UPI)`); reload(); }
     } catch (e) { toast(errMsg(e), "error"); } finally { setBusy(null); }
   };

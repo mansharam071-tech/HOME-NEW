@@ -5,6 +5,8 @@ const BASE = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api`;
 let token: string | null = null;
 let onUnauthorized: (() => void) | null = null;
 export const setToken = (t: string | null) => { token = t; };
+export const getToken = () => token;
+export const API_BASE = BASE;
 export const setUnauthorizedHandler = (fn: () => void) => { onUnauthorized = fn; };
 
 export class ApiError extends Error {
