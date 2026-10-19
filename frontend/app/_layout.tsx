@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AuthProvider } from "@/src/auth";
+import { CartProvider } from "@/src/cart";
 import { ToastProvider } from "@/src/ui";
 import { colors } from "@/src/theme";
 
@@ -27,10 +28,12 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <KeyboardProvider>
           <AuthProvider>
-            <ToastProvider>
-              <StatusBar style="dark" />
-              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
-            </ToastProvider>
+            <CartProvider>
+              <ToastProvider>
+                <StatusBar style="dark" />
+                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
+              </ToastProvider>
+            </CartProvider>
           </AuthProvider>
         </KeyboardProvider>
       </SafeAreaProvider>

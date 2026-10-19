@@ -1,29 +1,29 @@
 # HomeServe – Mobile Apps PRD
 
 ## Original problem statement
-"kya aap is 3module project ka mobile app bana sakte hai" – user uploaded the HomeServe 3-module project (Customer, Partner/Technician, Admin; FastAPI + MongoDB common backend + React web).
+"kya aap is 3module project ka mobile app bana sakte hai" – HomeServe 3-module project (Customer, Partner/Technician, Admin; FastAPI + MongoDB common backend + React web).
 
 ## User choices
-- SEPARATE mobile apps for Customer, Partner and Admin – **start with Admin** (done)
+- SEPARATE mobile apps for Customer, Partner, Admin (Admin done → Customer done → Partner next)
 - Reuse existing backend / common DB as-is
-- Demo payment mode (Wallet + COD real, UPI/Card simulated); Razorpay keys later
-- Hindi + English toggle
-- Project colors #1E3A8A blue, #F59E0B amber
+- Demo payments (Wallet + COD real, UPI/Card simulated); Razorpay later
+- Demo OTP 1234 for now; real SMS (Twilio) later
+- Hindi + English toggle; colors #1E3A8A / #F59E0B
+- Live map on tracking (react-native-maps, native only)
 
 ## Architecture
-- /app/backend – user's existing FastAPI backend (unchanged), .env recreated (DB homeserve_db, admin seed)
-- /app/frontend – NEW Expo SDK 57 (expo-router) HomeServe Admin app
-- /app/web_frontend – original React web app (reference for Customer/Partner apps)
+- /app/backend – existing FastAPI backend (unchanged)
+- /app/frontend – CUSTOMER Expo SDK 57 app (currently in preview)
+- /app/apps/admin – ADMIN Expo app source (preserved; copy into /app/frontend to preview/build)
+- /app/web_frontend – original React web app (reference)
 
-## Implemented (Oct 2026) – Admin mobile app
-- Admin email/password login, session persisted (SecureStore / localStorage)
-- Tabs: Home (KPIs, red alerts with actions, trend line chart, category donut, quick actions), Bookings (status chips, search, detail sheet, reassign, cancel+refund), Partners (KYC doc review, partner COD/rejection tools, payouts, SOS panel), More
-- Stack screens: Cities & geofencing (pincodes, CSV text upload, surge, city prices, JSON), Surge rules & Coupons, Finance (commission 15–20%, weekly settlements, GST invoices), Alerts, Global search
-- Hindi/English toggle (saved to user profile)
-- Tested: iteration_4 + iteration_5 all pass
+## Implemented
+- Oct 2026: Admin app – dashboard, bookings (reassign/cancel), KYC/partners/SOS/payouts, cities, surge & coupons, finance, alerts, search, HI/EN
+- Oct 2026: Customer app – OTP login, home (location/GPS sheet, search, banners, categories, trending, book again), services list/detail with add-ons, address add with GPS (permission flow), checkout (instant/scheduled, coupons, UPI/Card/Wallet/COD), live tracking (map, stepper, OTPs, chat, masked call, extra-charge approval, cancel, invoice, rate+tip, rebook), bookings, wallet top-up, profile (lang, notifications, addresses), support chatbot + tickets
+- Security audit run (findings: fixed demo OTP, default admin password, committed JWT secret) – not yet fixed
 
 ## Backlog
-- P0: Partner/Technician mobile app (separate Expo app)
-- P0: Customer mobile app (separate Expo app)
-- P1: Map polygon editor for geofence in mobile; Razorpay live keys
-- P2: CSV file picker upload, export reports
+- P0: Partner/Technician mobile app
+- P0: Security fixes (real OTP via SMS, admin password, JWT secret rotation, CORS)
+- P1: Razorpay native checkout in app; audio landmark note; avatar upload (object storage)
+- P2: Geofence map editor in admin app

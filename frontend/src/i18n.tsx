@@ -1,39 +1,38 @@
 import React, { createContext, useContext } from "react";
-// @ts-ignore - plain JS dictionary shared with the web admin panel
-import { HI_ADMIN, ADMIN_PATTERNS } from "./i18n_admin";
+// @ts-ignore - plain JS dictionary shared with the web customer app
+import { HI, PATTERNS } from "./i18n_customer";
 
 const EXTRA: Record<string, string> = {
-  Home: "होम", Bookings: "बुकिंग", Partners: "पार्टनर", More: "और",
-  "Admin console": "एडमिन कंसोल", "Sign in": "साइन इन करें", Email: "ईमेल", Password: "पासवर्ड",
-  "Enter email and password": "ईमेल और पासवर्ड डालें", "HomeServe Ops": "HomeServe ऑप्स",
-  "Manage bookings, partners, cities and payouts on the go.": "चलते-फिरते बुकिंग, पार्टनर, शहर और पेआउट संभालें।",
-  "Good day,": "नमस्ते,", "Failed to load": "लोड नहीं हो पाया", Retry: "फिर से कोशिश करें",
-  Daily: "दैनिक", Weekly: "साप्ताहिक", Bookings_: "बुकिंग", "See all": "सभी देखें",
-  Pending: "लंबित", Assigned: "असाइन", "En Route": "रास्ते में", "In Progress": "काम जारी", Completed: "पूरा", Cancelled: "रद्द", "Payment Pending": "भुगतान बाकी", All: "सभी",
-  "Cancel booking": "बुकिंग रद्द करें", "Cancel with full refund?": "पूरे रिफ़ंड के साथ रद्द करें?", "Yes, cancel": "हाँ, रद्द करें", "Keep booking": "बुकिंग रखें",
-  "Booking details": "बुकिंग विवरण", Partner: "पार्टनर", Amount: "राशि", Payment: "भुगतान", Address: "पता",
-  "Choose partner": "पार्टनर चुनें", "No partners available": "कोई पार्टनर उपलब्ध नहीं",
-  "KYC": "केवाईसी", Payouts: "पेआउट", "Search": "खोजें", "Alerts": "अलर्ट", Language: "भाषा", Logout: "लॉग आउट",
-  "Cities & Geofencing": "शहर और जियोफ़ेंसिंग", "Surge & Coupons": "सर्ज और कूपन", "Finance & Settlements": "वित्त और सेटलमेंट",
-  "Notifications & red alerts": "सूचनाएँ और रेड अलर्ट", "Global search": "ग्लोबल खोज", "हिंदी": "हिंदी", English: "English",
-  "Pincodes": "पिनकोड", "Add": "जोड़ें", "Paste CSV text with pincodes": "पिनकोड वाला CSV टेक्स्ट चिपकाएँ", "Upload CSV text": "CSV टेक्स्ट अपलोड करें",
-  "Delete city": "शहर हटाएँ", "Show JSON": "JSON दिखाएँ", "Hide JSON": "JSON छिपाएँ", Multiplier: "गुणक", Reason: "कारण",
-  "Surge rules": "सर्ज नियम", Coupons: "कूपन", Trigger: "ट्रिगर", "Discount type": "छूट का प्रकार", "Valid till (YYYY-MM-DD)": "तक मान्य (YYYY-MM-DD)",
-  Settlements: "सेटलमेंट", Invoices: "इनवॉइस", "Customer GST invoice": "ग्राहक जीएसटी इनवॉइस", Total: "कुल", Close: "बंद करें",
-  "Polygon geofence points are kept as drawn on the web console.": "पॉलीगॉन जियोफ़ेंस बिंदु वेब कंसोल जैसे ही रहते हैं।",
-  Documents: "दस्तावेज़", "Type at least 2 characters": "कम से कम 2 अक्षर लिखें", Users: "उपयोगकर्ता", Cities: "शहर",
-  "Unread alerts": "अलर्ट", "Logged in as": "लॉग इन", "Bank": "बैंक", Approve: "स्वीकार करें", Accept: "स्वीकार करें", Resubmit: "फिर से माँगें",
-  "Driving Licence": "ड्राइविंग लाइसेंस", "Police Verification": "पुलिस सत्यापन", "SOS emergencies": "SOS आपातकाल", Cancel: "रद्द करें",
-  "Rate": "दर", "Operations": "ऑपरेशंस", "Account": "खाता", "Pull down to refresh": "रीफ़्रेश के लिए नीचे खींचें",
+  Home: "होम", Bookings: "बुकिंग", Wallet: "वॉलेट", Profile: "प्रोफ़ाइल",
+  "Mobile number": "मोबाइल नंबर", "Get OTP": "OTP पाएँ", "Verify & Continue": "जाँचें और आगे बढ़ें", "Change number": "नंबर बदलें",
+  "Demo mode — use OTP 1234": "डेमो मोड — OTP 1234 इस्तेमाल करें", "Home services, done right.": "घरेलू सेवाएँ, सही तरीके से।",
+  "Verified professionals at your doorstep in 30 minutes.": "30 मिनट में आपके दरवाज़े पर सत्यापित पेशेवर।",
+  "New here? Any valid mobile number creates your account instantly.": "नए हैं? कोई भी मान्य मोबाइल नंबर तुरंत आपका खाता बना देता है।",
+  "Help & Support": "मदद और सहायता", "Live chatbot": "लाइव चैटबॉट", "Type your question": "अपना सवाल लिखें", "My tickets": "मेरे टिकट", "No tickets yet": "अभी कोई टिकट नहीं",
+  "Raise support ticket": "सहायता टिकट बनाएँ", "My bookings": "मेरी बुकिंग", "No bookings yet": "अभी कोई बुकिंग नहीं", "One-click Re-book": "एक क्लिक में फिर से बुक करें",
+  Transactions: "लेन-देन", "No transactions yet": "अभी कोई लेन-देन नहीं", "Cashbacks, refunds & promo rewards live here": "कैशबैक, रिफ़ंड और प्रोमो इनाम यहाँ मिलते हैं",
+  "Save profile": "प्रोफ़ाइल सेव करें", "Full name": "पूरा नाम", Email: "ईमेल", Notifications: "सूचनाएँ", "Saved addresses": "सहेजे गए पते", "+ Add": "+ जोड़ें",
+  "Use for booking": "बुकिंग के लिए इस्तेमाल करें", Logout: "लॉग आउट", Language: "भाषा", "Push alerts": "पुश अलर्ट", "Sms alerts": "SMS अलर्ट", "Offers & promotions": "ऑफ़र और प्रमोशन",
+  "Add address": "पता जोड़ें", "Detect via GPS": "GPS से पता लगाएँ", "House / flat, street, area": "मकान / फ़्लैट, गली, इलाका", "Pincode (e.g. 226001)": "पिनकोड (जैसे 226001)",
+  Landmark: "लैंडमार्क", "Save address": "पता सेव करें", "Address saved": "पता सेव हुआ", "Profile updated": "प्रोफ़ाइल अपडेट हुई",
+  "Allow location access": "लोकेशन की अनुमति दें", "We use your location only to find your address and nearest service city.": "हम आपकी लोकेशन सिर्फ़ पता और नज़दीकी सेवा शहर ढूँढने के लिए इस्तेमाल करते हैं।",
+  Allow: "अनुमति दें", "Not now": "अभी नहीं", "Open Settings": "सेटिंग्स खोलें", "Location permission is off. Enable it in Settings, or type your pincode manually.": "लोकेशन अनुमति बंद है। सेटिंग्स में चालू करें या पिनकोड खुद लिखें।",
+  "Rate your experience": "अपना अनुभव रेट करें", "Add a tip (100% goes to partner)": "टिप दें (100% पार्टनर को)", "No tip": "कोई टिप नहीं", "Write a review (optional)": "समीक्षा लिखें (वैकल्पिक)", Submit: "जमा करें",
+  "In-app chat": "इन-ऐप चैट", "Type a message": "संदेश लिखें", "No messages yet": "अभी कोई संदेश नहीं", "Masked call": "मास्क्ड कॉल", "Dial now": "अभी डायल करें",
+  "Tax Invoice": "टैक्स इनवॉइस", "GST Invoice": "जीएसटी इनवॉइस", "Approve extra charge?": "अतिरिक्त शुल्क स्वीकार करें?", Approve: "स्वीकार करें", Decline: "अस्वीकार करें",
+  "Cancel booking": "बुकिंग रद्द करें", "Cancel this booking? Fees apply as per policy.": "यह बुकिंग रद्द करें? नीति के अनुसार शुल्क लगेगा।", "Yes, cancel": "हाँ, रद्द करें", "Keep booking": "बुकिंग रखें",
+  "Finding the best verified partner near you…": "आपके पास सबसे अच्छा सत्यापित पार्टनर ढूँढ रहे हैं…", "Share Start OTP": "स्टार्ट OTP बताएँ", "End OTP (share when done)": "एंड OTP (काम पूरा होने पर बताएँ)",
+  Confirmed: "कन्फ़र्म", "Job Started": "काम शुरू", "Extra parts / charges": "अतिरिक्त पार्ट्स / शुल्क", "Balance due for approved extras": "स्वीकृत अतिरिक्त का बकाया", Help: "मदद",
+  "Your location": "आपकी लोकेशन", Technician: "टेक्नीशियन", "Choose a different address": "दूसरा पता चुनें", "Live map is available in the mobile app": "लाइव मैप मोबाइल ऐप में उपलब्ध है",
 };
 
-const DICT: Record<string, string> = { ...HI_ADMIN, ...EXTRA };
+const DICT: Record<string, string> = { ...HI, ...EXTRA };
 
 export const translate = (s: string, lang: string): string => {
   if (lang !== "hi" || !s) return s;
   const trimmed = s.trim();
   if (DICT[trimmed]) return s.replace(trimmed, DICT[trimmed]);
-  for (const [re, rep] of ADMIN_PATTERNS as [RegExp, any][]) {
+  for (const [re, rep] of PATTERNS as [RegExp, any][]) {
     if (re.test(trimmed)) return trimmed.replace(re, rep);
   }
   return s;

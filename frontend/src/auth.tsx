@@ -1,19 +1,20 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { storage } from "@/src/utils/storage";
 import { api, setToken, setUnauthorizedHandler } from "./api";
 import { LangProvider } from "./i18n";
-import { ActivityIndicator, View } from "react-native";
 import { colors } from "./theme";
 
-const KEY = "hs_admin";
+const KEY = "hs_customer";
 type Session = { token: string; user: any } | null;
 
 const AuthCtx = createContext<{
   session: Session; ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  sendOtp: (phone: string) => Promise<any>;
+  verifyOtp: (phone: string, otp: string) => Promise<any>;
+  updateMe: (patch: any) => Promise<any>;
   logout: () => Promise<void>;
-  toggleLang: () => Promise<void>;
-}>({ session: null, ready: false, login: async () => {}, logout: async () => {}, toggleLang: async () => {} });
+}>({} as any);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session>(null);
@@ -36,20 +37,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }).catch(() => setReady(true));
   }, [persist]);
 
-  const login = async (email: string, password: string) => {
-    const d = await api("/auth/admin/login", { method: "POST", body: { email, password } });
-    if (d.user?.role !== "admin") throw new Error("Not an admin account");
+  const sendOtp = (phone: string) => api("/auth/otp/send", { method: "POST", body: { phone, role: "customer" } });
+  const verifyOtp = async (phone: string, otp: string) => {
+    const d = await api("/auth/otp/verify", { method: "POST", body: { phone, otp, role: "customer" } });
     await persist({ token: d.token, user: d.user });
+    return d;
+  };
+  const updateMe = async (patch: any) => {
+    const user = await api("/auth/me", { method: "PUT", body: patch });
+    if (session) await persist({ ...session, user });
+    return user;
   };
   const logout = () => persist(null);
-  const toggleLang = async () => {
-    if (!session) return;
-    const user = await api("/auth/me", { method: "PUT", body: { language: session.user?.language === "hi" ? "en" : "hi" } });
-    await persist({ ...session, user });
-  };
 
   return (
-    <AuthCtx.Provider value={{ session, ready, login, logout, toggleLang }}>
+    <AuthCtx.Provider value={{ session, ready, sendOtp, verifyOtp, updateMe, logout }}>
       <LangProvider lang={session?.user?.language || "en"}>
         {ready ? children : <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.surface }}><ActivityIndicator color={colors.brand} /></View>}
       </LangProvider>

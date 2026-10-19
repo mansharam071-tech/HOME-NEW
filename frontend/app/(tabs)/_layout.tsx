@@ -9,10 +9,10 @@ import { usesNativeTabs } from "@/src/navigation";
 import { colors, fonts } from "@/src/theme";
 
 const TABS = [
-  { name: "home", label: "Home", sf: "house.fill", icon: "grid", iconOff: "grid-outline" },
-  { name: "bookings", label: "Bookings", sf: "list.bullet.rectangle.fill", icon: "list", iconOff: "list-outline" },
-  { name: "partners", label: "Partners", sf: "person.2.fill", icon: "people", iconOff: "people-outline" },
-  { name: "more", label: "More", sf: "ellipsis.circle.fill", icon: "menu", iconOff: "menu-outline" },
+  { name: "home", label: "Home", sf: "house.fill", icon: "home", iconOff: "home-outline" },
+  { name: "bookings", label: "Bookings", sf: "calendar", icon: "calendar", iconOff: "calendar-outline" },
+  { name: "wallet", label: "Wallet", sf: "wallet.pass.fill", icon: "wallet", iconOff: "wallet-outline" },
+  { name: "profile", label: "Profile", sf: "person.crop.circle.fill", icon: "person-circle", iconOff: "person-circle-outline" },
 ] as const;
 
 export default function TabsLayout() {
