@@ -41,7 +41,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (d.user?.role !== "admin") throw new Error("Not an admin account");
     await persist({ token: d.token, user: d.user });
   };
-  const logout = () => persist(null);
+  const logout = async () => {
+    await api("/auth/logout", { method: "POST" }).catch(() => {});
+    await persist(null);
+  };
   const toggleLang = async () => {
     if (!session) return;
     const user = await api("/auth/me", { method: "PUT", body: { language: session.user?.language === "hi" ? "en" : "hi" } });

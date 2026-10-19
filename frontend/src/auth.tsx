@@ -49,7 +49,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (session) await persist({ ...session, user });
     return user;
   };
-  const logout = () => persist(null);
+  const logout = async () => {
+    await api("/auth/logout", { method: "POST" }).catch(() => {});
+    await persist(null);
+  };
 
   // Register for push on login and on every app open (tokens rotate)
   const uid = session?.user?.id;

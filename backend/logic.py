@@ -80,7 +80,7 @@ async def evaluate_coupon(code, user_id, city, lines, amount):
     if amount < c.get("min_order", 0):
         return 0, f"Minimum order ₹{c['min_order']} required"
     if c.get("first_order_only"):
-        n = await db.bookings.count_documents({"customer_id": user_id, "status": {"$ne": "cancelled"}})
+        n = await db.bookings.count_documents({"customer_id": user_id, "status": {"$ne": "payment_pending"}})
         if n > 0:
             return 0, "Valid on first order only"
     if c["discount_type"] == "percent":

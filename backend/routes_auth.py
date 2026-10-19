@@ -2,8 +2,8 @@ import re
 from datetime import timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
-from core import db, NOID, DEMO_OTP, iso, now, new_id, verify_password, create_token, public_user, get_current_user
+from pydantic import BaseModel, Field
+from core import db, NOID, DEMO_OTP, iso, now, new_id, verify_password, hash_password, create_token, public_user, get_current_user
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -88,6 +88,32 @@ async def otp_verify(body: OtpVerify):
 @router.get("/me")
 async def me(user: dict = Depends(get_current_user)):
     return user
+
+
+@router.post("/logout")
+async def logout(user: dict = Depends(get_current_user)):
+    """Server-side revocation: bump token_version so every existing token for this user stops working."""
+    await db.users.update_one({"id": user["id"]}, {"$inc": {"token_version": 1}})
+    return {"ok": True}
+
+
+class ChangePassword(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=12, max_length=256)
+
+
+@router.post("/admin/change-password")
+async def change_admin_password(body: ChangePassword, user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    full = await db.users.find_one({"id": user["id"]})
+    if not verify_password(body.current_password, full["password_hash"]):
+        raise HTTPException(400, "Current password is incorrect")
+    if body.current_password == body.new_password:
+        raise HTTPException(400, "New password must be different")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"password_hash": hash_password(body.new_password)},
+                                                   "$inc": {"token_version": 1}})
+    return {"ok": True}
 
 
 @router.put("/me")

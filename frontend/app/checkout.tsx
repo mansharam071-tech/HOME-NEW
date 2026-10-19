@@ -32,7 +32,7 @@ export default function Checkout() {
   const [mode, setMode] = useState("instant");
   const [date, setDate] = useState(ymd(new Date()));
   const [slot, setSlot] = useState<string | null>(null);
-  const [pay, setPay] = useState("upi");
+  const [pay, setPay] = useState("cod");
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState("");
   const [busy, setBusy] = useState(false);
@@ -190,7 +190,8 @@ export default function Checkout() {
             <Card style={{ gap: spacing.sm }}>
               <T v="subtitle">Payment method</T>
               {PAY.map((m) => {
-                const low = m.id === "wallet" && Number(wallet.data?.balance || 0) < p.total;
+                const low = (m.id === "wallet" && Number(wallet.data?.balance || 0) < p.total)
+                  || ((m.id === "upi" || m.id === "card") && !!cfg.data && !cfg.data.enabled && !cfg.data.demo);
                 return (
                 <Press key={m.id} testID={`pay-${m.id}`} onPress={() => setPay(m.id)} disabled={low} style={[styles.pay, pay === m.id && styles.sel]}>
                   <Icon name={m.icon} size={20} color={colors.brand} />

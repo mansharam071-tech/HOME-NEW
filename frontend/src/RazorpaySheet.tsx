@@ -22,7 +22,7 @@ export default function RazorpaySheet({ order, description, prefill, onSuccess, 
   const html = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script></head><body style="background:${colors.surface}"><script>
 function send(v){window.ReactNativeWebView.postMessage(JSON.stringify(v));}
-var o=${JSON.stringify(checkoutOptions(order, description, prefill))};
+var o=${JSON.stringify(checkoutOptions(order, description, prefill)).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/\u2028|\u2029/g, "")};
 o.handler=function(r){send({type:'success',data:r});};
 o.modal={ondismiss:function(){send({type:'dismissed'});}};
 try{var rzp=new Razorpay(o);rzp.on('payment.failed',function(){});rzp.open();}catch(e){send({type:'error'});}
@@ -40,7 +40,7 @@ try{var rzp=new Razorpay(o);rzp.on('payment.failed',function(){});rzp.open();}ca
   return (
     <Modal visible animationType="slide" onRequestClose={onDismiss}>
       <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.surface }} testID="razorpay-checkout">
-        <WebView originWhitelist={["*"]} source={{ html, baseUrl: "https://checkout.razorpay.com" }} onMessage={onMessage}
+        <WebView originWhitelist={["https://*", "about:*"]} source={{ html, baseUrl: "https://checkout.razorpay.com" }} onMessage={onMessage}
           javaScriptEnabled domStorageEnabled startInLoadingState setSupportMultipleWindows={false} />
       </View>
     </Modal>

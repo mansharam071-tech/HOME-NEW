@@ -27,7 +27,7 @@ for r in (auth_router, customer_router, partner_router, admin_router, payments_r
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
     allow_methods=["*"],
     allow_headers=["*"],

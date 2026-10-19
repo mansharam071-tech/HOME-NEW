@@ -124,14 +124,12 @@ def partner(pid, phone, name, skills, city, online, cod=0, rej=0, kyc="approved"
 
 
 async def seed_admin():
+    """Create the admin once. Never overwrite an existing admin's password (it may have been changed)."""
     email = os.environ["ADMIN_EMAIL"].lower()
     pw = os.environ["ADMIN_PASSWORD"]
-    ex = await db.users.find_one({"email": email})
-    if not ex:
-        await db.users.insert_one({"id": new_id("usr_"), "role": "admin", "email": email, "name": "Ops Admin",
-                                   "password_hash": hash_password(pw), "created_at": iso()})
-    elif not verify_password(pw, ex["password_hash"]):
-        await db.users.update_one({"email": email}, {"$set": {"password_hash": hash_password(pw)}})
+    await db.users.update_one({"email": email}, {"$setOnInsert": {
+        "id": new_id("usr_"), "role": "admin", "email": email, "name": "Ops Admin", "token_version": 0,
+        "password_hash": hash_password(pw), "created_at": iso()}}, upsert=True)
 
 
 def make_booking(cust, prt, lines, addr, city, status, created, rating=None, method="upi"):

@@ -42,8 +42,9 @@ def verify_password(pw: str, hashed: str) -> bool:
 
 
 def create_token(user: dict) -> str:
-    payload = {"sub": user["id"], "role": user["role"], "type": "access",
-               "exp": now() + timedelta(days=7)}
+    hours = int(os.environ.get("ACCESS_TOKEN_HOURS", "24"))
+    payload = {"sub": user["id"], "role": user["role"], "type": "access", "tv": int(user.get("token_version", 0)),
+               "iat": now(), "exp": now() + timedelta(hours=hours)}
     return jwt.encode(payload, os.environ["JWT_SECRET"], algorithm=JWT_ALG)
 
 
@@ -58,7 +59,7 @@ async def get_current_user(request: Request) -> dict:
     if not token:
         raise HTTPException(401, "Not authenticated")
     try:
-        payload = jwt.decode(token, os.environ["JWT_SECRET"], algorithms=[JWT_ALG])
+        payload = jwt.decode(token, os.environ["JWT_SECRET"], algorithms=[JWT_ALG], options={"require": ["sub", "exp", "iat", "tv"]})
     except jwt.ExpiredSignatureError:
         raise HTTPException(401, "Token expired")
     except jwt.InvalidTokenError:
@@ -66,6 +67,8 @@ async def get_current_user(request: Request) -> dict:
     user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(401, "User not found")
+    if int(payload["tv"]) != int(user.get("token_version", 0)):
+        raise HTTPException(401, "Session expired, please log in again")
     return user
 
 

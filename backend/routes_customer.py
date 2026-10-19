@@ -1,4 +1,5 @@
 import random
+import re
 import secrets
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,7 +8,7 @@ from core import db, NOID, iso, now, new_id, r2, haversine_km, require_role, get
 from logic import (build_quote, city_for_pincode, enrich_booking, wallet_txn, push_timeline, assert_booking,
                    finalize, refresh_partner_rating, CANCEL_FEES, CANCELLATION_POLICY, GST_RATE)
 
-from routes_payments import create_order, enabled as payments_enabled
+from routes_payments import create_order, enabled as payments_enabled, demo_allowed
 
 router = APIRouter(prefix="/api", tags=["customer"])
 customer = require_role("customer")
@@ -75,7 +76,7 @@ async def list_services(category_id: Optional[str] = None, q: Optional[str] = No
     if category_id:
         f["category_id"] = category_id
     if q:
-        f["name"] = {"$regex": q, "$options": "i"}
+        f["name"] = {"$regex": re.escape(q.strip()[:60]), "$options": "i"}
     return await db.services.find(f, {"_id": 0, "reviews": 0}).to_list(200)
 
 
@@ -242,6 +243,8 @@ async def create_booking(body: BookingIn, user=Depends(customer)):
     bid = new_id("bk_")
     created = iso()
     online = body.payment_method in ("upi", "card") and payments_enabled()
+    if body.payment_method in ("upi", "card") and not online and not demo_allowed():
+        raise HTTPException(400, "Online payment is not available right now. Please choose Wallet or Cash after service.")
     b = {"id": bid, "booking_no": f"SF{100000 + secrets.randbelow(900000)}", "customer_id": user["id"], "partner_id": None,
          "lines": q["lines"], "category_ids": list({l["category_id"] for l in q["lines"]}),
          "address": {k: addr.get(k) for k in ("id", "label", "line", "pincode", "city", "location", "landmark", "audio_note")},
@@ -296,8 +299,7 @@ async def cancel_booking(bid: str, user=Depends(customer)):
         bal = (await db.users.find_one({"id": user["id"]}, {"_id": 0, "wallet_balance": 1})).get("wallet_balance", 0)
         if bal > 0:
             await wallet_txn(user["id"], -min(bal, fee), f"Cancellation fee {b['booking_no']}", bid)
-    if b["pricing"].get("coupon_code"):
-        await db.coupons.update_one({"code": b["pricing"]["coupon_code"], "used_count": {"$gt": 0}}, {"$inc": {"used_count": -1}})
+    # coupon redemptions are permanent (no used_count refund on cancel) to stop first-order coupon reuse
     await push_timeline(bid, "cancelled", {"status": "cancelled", "offered_to": None,
                                             "cancellation": {"fee": fee, "refund": refund, "by": "customer", "at": iso()},
                                             "payment_status": "refunded" if refund else b["payment_status"]})
@@ -423,6 +425,8 @@ async def topup(amount: float, user=Depends(customer)):
         raise HTTPException(400, "Amount must be between ₹1 and ₹10,000")
     if payments_enabled():
         return {"razorpay": await create_order(user, amount, "wallet", None, "wallet-topup")}
+    if not demo_allowed():
+        raise HTTPException(400, "Wallet top-up is not available right now.")
     await wallet_txn(user["id"], amount, "Wallet top-up (demo UPI)")
     return {"ok": True}
 

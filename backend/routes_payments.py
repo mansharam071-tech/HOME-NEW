@@ -26,6 +26,11 @@ def enabled():
     return bool(os.environ.get("RAZORPAY_KEY_ID") and os.environ.get("RAZORPAY_KEY_SECRET"))
 
 
+def demo_allowed():
+    """Demo (simulated) UPI/Card/top-up only when explicitly enabled. Set PAYMENTS_DEMO_MODE=false in production."""
+    return os.environ.get("PAYMENTS_DEMO_MODE", "false").strip().lower() == "true"
+
+
 def client():
     if not enabled():
         raise HTTPException(503, "Online payments are not configured")
@@ -75,7 +80,8 @@ async def fulfil(order_id, payment_id):
 
 @router.get("/config")
 async def config():
-    return {"enabled": enabled(), "key_id": os.environ.get("RAZORPAY_KEY_ID") if enabled() else None}
+    return {"enabled": enabled(), "key_id": os.environ.get("RAZORPAY_KEY_ID") if enabled() else None,
+            "demo": (not enabled()) and demo_allowed()}
 
 
 @router.post("/verify")
