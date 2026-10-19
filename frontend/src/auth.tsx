@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from "react-native";
 import { storage } from "@/src/utils/storage";
 import { api, setToken, setUnauthorizedHandler } from "./api";
 import { LangProvider } from "./i18n";
+import { registerForPush } from "./push";
 import { colors } from "./theme";
 
 const KEY = "hs_customer";
@@ -49,6 +50,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return user;
   };
   const logout = () => persist(null);
+
+  // Register for push on login and on every app open (tokens rotate)
+  const uid = session?.user?.id;
+  useEffect(() => { if (uid) registerForPush(uid); }, [uid]);
 
   return (
     <AuthCtx.Provider value={{ session, ready, sendOtp, verifyOtp, updateMe, logout }}>

@@ -1,5 +1,7 @@
+import asyncio
 from datetime import timedelta
 from fastapi import HTTPException
+from push import BOOKING_MESSAGES, notify_customer
 from core import db, NOID, now, iso, new_id, r2, haversine_km, IST
 
 GST_RATE = 0.18
@@ -187,6 +189,9 @@ async def push_timeline(bid, status, extra=None):
     if extra:
         upd["$set"] = extra
     await db.bookings.update_one({"id": bid}, upd)
+    if status in BOOKING_MESSAGES:
+        b = await db.bookings.find_one({"id": bid}, {"_id": 0, "id": 1, "customer_id": 1, "booking_no": 1})
+        asyncio.create_task(notify_customer(b, status, key=f"{bid}_{status}_{iso()}"))
 
 
 async def partner_has_live_job(pid):

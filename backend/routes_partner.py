@@ -1,7 +1,9 @@
+import asyncio
 from datetime import timedelta, datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from push import notify_customer
 from core import db, NOID, iso, now, new_id, r2, require_role, IST
 from logic import (find_offer_for_partner, offer_view, enrich_booking, push_timeline, assert_booking, cod_blocked,
                    commission_rate_for, finalize, wallet_txn, ist_date, ACTIVE_STATUSES)
@@ -117,6 +119,8 @@ async def accept(bid: str, user=Depends(partner)):
     if not res.modified_count:
         raise HTTPException(400, "Offer expired or no longer available")
     await db.users.update_one({"id": user["id"]}, {"$set": {"consecutive_rejections": 0}})
+    b = await db.bookings.find_one({"id": bid}, {"_id": 0, "id": 1, "customer_id": 1, "booking_no": 1})
+    asyncio.create_task(notify_customer(b, "assigned", key=f"{bid}_accept_{user['id']}"))
     return {"ok": True, "booking_id": bid}
 
 
@@ -244,6 +248,8 @@ async def add_extra(bid: str, body: ExtraIn, user=Depends(partner)):
         raise HTTPException(400, "Enter part name and a positive amount")
     ex = {"id": new_id("ex_"), "name": body.name.strip(), "amount": r2(body.amount), "status": "pending", "requested_at": iso()}
     await db.bookings.update_one({"id": bid}, {"$push": {"extras": ex}})
+    asyncio.create_task(notify_customer(b, "extra", title="Approve extra charge?",
+                                        message=f"{ex['name']} for ₹{ex['amount']} needs your approval on booking {{no}}.", key=ex["id"]))
     return ex
 
 
