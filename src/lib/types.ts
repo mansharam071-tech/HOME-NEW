@@ -6,6 +6,8 @@ export interface Category {
   icon: string;
   image: string;
   order: number;
+  description?: string;
+  is_active?: boolean;
 }
 
 export interface Addon {
@@ -34,6 +36,8 @@ export interface Service {
   image: string;
   addons: Addon[];
   reviews: Review[];
+  warranty?: string;
+  is_active?: boolean;
 }
 
 export interface LatLng {
@@ -52,6 +56,25 @@ export interface CityAssignedService {
   city_price: number;
 }
 
+export interface CityCustomerSettings {
+  enable_gst: boolean;
+  gst_rate: number;
+  enable_platform_fee: boolean;
+  platform_fee_amount: number;
+  enable_base_price?: boolean;
+  base_price_amount?: number;
+  allow_customer_choice?: boolean;
+  default_invoice_type?: 'gst_tax_invoice' | 'non_gst_invoice';
+}
+
+export interface CityPartnerSettings {
+  model_type?: 'commission' | 'daily_subscription';
+  enable_commission: boolean;
+  commission_rate: number; // e.g. 0.15 for 15%
+  enable_daily_subscription: boolean;
+  daily_subscription_fee: number; // e.g. 49
+}
+
 export interface City {
   id: string;
   city_name: string;
@@ -62,6 +85,22 @@ export interface City {
   polygon: [number, number][];
   surge_pricing: CitySurge;
   assigned_services: CityAssignedService[];
+  disabled_service_ids?: string[]; // IDs of services disabled in this city
+  // Customer Invoicing & Fee Configuration per city
+  enable_gst_invoice: boolean; // true = Tax Invoice with GST, false = Non-GST Invoice
+  gst_rate: number; // default 18
+  enable_platform_fee: boolean; // platform fees toggle (platefees)
+  platform_fee: number; // platform fee amount in INR
+  base_price_multiplier: number; // base price modifier
+  enable_base_price?: boolean;
+  base_price?: number;
+  // Service Provider / Partner Model per city
+  partner_model: 'commission' | 'daily_subscription'; // % commission vs daily subscription
+  partner_commission_pct: number; // e.g. 15%
+  partner_daily_subscription_fee: number; // e.g. 49/day
+  // Nested settings objects for Admin UI compatibility
+  customer_settings?: CityCustomerSettings;
+  partner_settings?: CityPartnerSettings;
   created_at: string;
 }
 
@@ -203,11 +242,15 @@ export interface BookingTimelineItem {
 }
 
 export interface BookingPricing {
+  base_price: number;
+  addons_total: number;
   subtotal: number;
   surge_multiplier: number;
   surge_amount: number;
   discount: number;
   coupon_code: string | null;
+  platform_fee: number; // platefees
+  is_gst_invoice: boolean; // true = Tax Invoice with GST, false = Non-GST
   taxable: number;
   gst_rate: number;
   gst_amount: number;
@@ -226,11 +269,37 @@ export type BookingStatus =
   | 'completed'
   | 'cancelled';
 
+export interface PartnerAssignment {
+  id: string;
+  partner_id: string;
+  partner_name: string;
+  partner_phone: string;
+  partner_rating: number;
+  partner_avatar?: string | null;
+  category_id: string;
+  category_name: string;
+  service_lines: BookingLine[];
+  status: BookingStatus;
+  start_otp: string;
+  end_otp: string;
+  subtotal: number;
+  partner_earning: number;
+  commission: number;
+  assigned_at: string;
+  en_route_at?: string | null;
+  arrived_at?: string | null;
+  completed_at?: string | null;
+  is_transferred?: boolean;
+  transfer_reason?: string;
+}
+
 export interface Booking {
   id: string;
   booking_no: string;
   customer_id: string;
   partner_id: string | null;
+  is_multi_provider?: boolean;
+  partner_assignments?: PartnerAssignment[];
   lines: BookingLine[];
   category_ids: string[];
   address: Address;
@@ -254,6 +323,9 @@ export interface Booking {
   commission_rate: number;
   commission: number;
   partner_earning: number;
+  partner_model_applied?: 'commission' | 'daily_subscription';
+  partner_daily_subscription_fee?: number;
+  invoice_type?: 'gst_tax_invoice' | 'non_gst_invoice';
   invoice_no?: string | null;
   offered_to?: string | null;
   rejected_by?: string[];

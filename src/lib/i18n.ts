@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { HI_ADMIN, ADMIN_PATTERNS } from "./i18n_admin";
 
 let current = "en";
@@ -331,6 +331,11 @@ const walk = (root: Node) => {
   }
 };
 
+export const t = (s: string): string => {
+  if (current !== "hi") return s;
+  return translate(s) || s;
+};
+
 export const useHindi = (lang: string = "en") => {
   current = lang || "en";
   useEffect(() => {
@@ -364,3 +369,30 @@ export const useHindi = (lang: string = "en") => {
     };
   }, [lang]);
 };
+
+export const useLang = () => {
+  const [lang, setLangState] = useState<string>(current);
+  useHindi(lang);
+
+  const setLang = (newLang: string) => {
+    current = newLang;
+    setLangState(newLang);
+    window.dispatchEvent(new CustomEvent("hs_lang_changed", { detail: newLang }));
+  };
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent<string>;
+      if (custom.detail) setLangState(custom.detail);
+    };
+    window.addEventListener("hs_lang_changed", handler);
+    return () => window.removeEventListener("hs_lang_changed", handler);
+  }, []);
+
+  return {
+    lang,
+    setLang,
+    t: (s: string) => (lang === "hi" ? translate(s) || s : s),
+  };
+};
+

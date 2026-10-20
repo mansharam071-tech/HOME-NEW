@@ -1,6 +1,9 @@
 {
   "name": "SMARTFIX - Home Service Ecosystem",
   "description": "Comprehensive home service ecosystem featuring customer booking app, partner/technician app with OTP flows and extra charges, and operations admin console with geofencing.",
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
   "capabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

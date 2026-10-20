@@ -341,6 +341,15 @@ export const CITIES: City[] = [
       { service_id: "serv_ac_01", city_price: 499 },
       { service_id: "serv_clean_02", city_price: 799 },
     ],
+    disabled_service_ids: [],
+    enable_gst_invoice: true,
+    gst_rate: 18,
+    enable_platform_fee: true,
+    platform_fee: 29,
+    base_price_multiplier: 1.0,
+    partner_model: "commission",
+    partner_commission_pct: 15,
+    partner_daily_subscription_fee: 49,
     created_at: new Date().toISOString(),
   },
   {
@@ -361,6 +370,15 @@ export const CITIES: City[] = [
       { service_id: "serv_ac_01", city_price: 599 },
       { service_id: "serv_clean_02", city_price: 999 },
     ],
+    disabled_service_ids: [],
+    enable_gst_invoice: true,
+    gst_rate: 18,
+    enable_platform_fee: true,
+    platform_fee: 39,
+    base_price_multiplier: 1.0,
+    partner_model: "daily_subscription",
+    partner_commission_pct: 10,
+    partner_daily_subscription_fee: 49,
     created_at: new Date().toISOString(),
   },
   {
@@ -378,6 +396,15 @@ export const CITIES: City[] = [
     ],
     surge_pricing: { is_active: false, multiplier: 1.0, reason: "" },
     assigned_services: [{ service_id: "serv_ac_01", city_price: 579 }],
+    disabled_service_ids: [],
+    enable_gst_invoice: false, // Non-GST by default
+    gst_rate: 0,
+    enable_platform_fee: false,
+    platform_fee: 0,
+    base_price_multiplier: 1.0,
+    partner_model: "commission",
+    partner_commission_pct: 12,
+    partner_daily_subscription_fee: 59,
     created_at: new Date().toISOString(),
   },
 ];
@@ -521,10 +548,10 @@ export const DEMO_CUSTOMER: User = {
 export const DEMO_PARTNER: User = {
   id: "usr_demo_partner",
   role: "partner",
-  name: "Ramesh Kumar",
+  name: "Ramesh Kumar (Electrician Pro)",
   phone: "9000000001",
-  skills: ["cat_ac", "cat_clean", "cat_elec", "cat_plumb", "cat_appl"],
-  sub_skills: [],
+  skills: ["cat_elec", "cat_appl"],
+  sub_skills: ["fan_repair", "wiring", "switches"],
   city_id: "city_lucknow",
   is_online: true,
   kyc_status: "approved",
@@ -582,18 +609,19 @@ export const OTHER_PARTNERS: User[] = [
   {
     id: "usr_p2",
     role: "partner",
-    name: "Suresh Yadav",
+    name: "Suresh Yadav (Cleaning Specialist)",
     phone: "9000000002",
-    skills: ["cat_ac", "cat_elec"],
+    skills: ["cat_clean", "cat_pest"],
+    sub_skills: ["bathroom_cleaning", "kitchen_cleaning", "deep_cleaning"],
     city_id: "city_lucknow",
     is_online: true,
     kyc_status: "approved",
-    cod_cash: 3450, // exceeds 3000 limit!
+    cod_cash: 850,
     cod_limit: 3000,
-    rating: 4.7,
-    jobs_done: 38,
-    wallet_balance: 920.0,
-    pending_earnings: 550.0,
+    rating: 4.9,
+    jobs_done: 56,
+    wallet_balance: 1420.0,
+    pending_earnings: 750.0,
     consecutive_rejections: 0,
     location: { lat: 26.848, lng: 80.952 },
     shift: { start: "08:00", end: "18:00", off_days: ["Tue"] },
@@ -609,9 +637,10 @@ export const OTHER_PARTNERS: User[] = [
   {
     id: "usr_p3",
     role: "partner",
-    name: "Imran Khan",
+    name: "Imran Khan (Plumbing Expert)",
     phone: "9000000003",
-    skills: ["cat_plumb", "cat_clean"],
+    skills: ["cat_plumb", "cat_ac"],
+    sub_skills: ["leakage_fix", "sanitary", "pipe_repair"],
     city_id: "city_lucknow",
     is_online: true,
     kyc_status: "approved",
@@ -621,7 +650,7 @@ export const OTHER_PARTNERS: User[] = [
     jobs_done: 29,
     wallet_balance: 410.0,
     pending_earnings: 280.0,
-    consecutive_rejections: 4, // high rejections alert!
+    consecutive_rejections: 1,
     location: { lat: 26.842, lng: 80.941 },
     shift: { start: "09:00", end: "20:00", off_days: ["Wed"] },
     bank: { holder: "Imran Khan", account_no: "XXXXXX0003", ifsc: "HDFC0003456", bank_name: "HDFC Bank" },
@@ -633,6 +662,7 @@ export const OTHER_PARTNERS: User[] = [
     },
     created_at: new Date().toISOString(),
   },
+
   {
     id: "usr_p6",
     role: "partner",
@@ -738,18 +768,22 @@ export function generateSeedData(): InitialData {
   const now = new Date();
 
   // Helper for pricing
-  const calcPrice = (sub: number, mult: number, disc: number): BookingPricing => {
+  const calcPrice = (sub: number, mult: number, disc: number, hasGst: boolean = true, platFee: number = 29): BookingPricing => {
     const surgeAmt = Math.round(sub * (mult - 1) * 100) / 100;
     const taxable = Math.max(0, sub + surgeAmt - disc);
-    const gstRate = 0.18;
+    const gstRate = hasGst ? 0.18 : 0;
     const gst = Math.round(taxable * gstRate * 100) / 100;
-    const total = Math.round((taxable + gst) * 100) / 100;
+    const total = Math.round((taxable + gst + platFee) * 100) / 100;
     return {
+      base_price: sub,
+      addons_total: 0,
       subtotal: sub,
       surge_multiplier: mult,
       surge_amount: surgeAmt,
       discount: disc,
       coupon_code: null,
+      platform_fee: platFee,
+      is_gst_invoice: hasGst,
       taxable,
       gst_rate: gstRate,
       gst_amount: gst,
@@ -810,6 +844,135 @@ export function generateSeedData(): InitialData {
     created_at: new Date(Date.now() - 25 * 60000).toISOString(),
     en_route_at: new Date(Date.now() - 10 * 60000).toISOString(),
     partner_origin: { lat: 26.852, lng: 80.948 },
+  });
+
+  // Live Multi-Service Booking (Fan Installation + Bathroom Cleaning) with Auto-Transfer
+  const bMultiPricing = calcPrice(149 + 449, 1.0, 0);
+  bookings.push({
+    id: "bk_multi_demo",
+    booking_no: "HS882910",
+    customer_id: "usr_demo_customer",
+    partner_id: "usr_demo_partner",
+    is_multi_provider: true,
+    partner_assignments: [
+      {
+        id: "asgn_fan_01",
+        partner_id: "usr_demo_partner",
+        partner_name: "Ramesh Kumar (Electrician Pro)",
+        partner_phone: "9000000001",
+        partner_rating: 4.8,
+        category_id: "cat_elec",
+        category_name: "Electrician",
+        service_lines: [
+          {
+            service_id: "serv_elec_01",
+            name: "Fan / Light Installation & Repair",
+            category_id: "cat_elec",
+            category_name: "Electrician",
+            image: IMG.cat_elec,
+            qty: 1,
+            unit_price: 149,
+            addons: [],
+            line_total: 149,
+          },
+        ],
+        status: "assigned",
+        start_otp: "5182",
+        end_otp: "9241",
+        subtotal: 149,
+        partner_earning: Math.round(149 * 0.85 * 100) / 100,
+        commission: Math.round(149 * 0.15 * 100) / 100,
+        assigned_at: new Date(Date.now() - 15 * 60000).toISOString(),
+        is_transferred: false,
+      },
+      {
+        id: "asgn_clean_01",
+        partner_id: "usr_p2",
+        partner_name: "Suresh Yadav (Cleaning Specialist)",
+        partner_phone: "9000000002",
+        partner_rating: 4.9,
+        category_id: "cat_clean",
+        category_name: "Cleaning",
+        service_lines: [
+          {
+            service_id: "serv_clean_03",
+            name: "Bathroom Intense Cleaning",
+            category_id: "cat_clean",
+            category_name: "Cleaning",
+            image: IMG.cat_clean,
+            qty: 1,
+            unit_price: 449,
+            addons: [],
+            line_total: 449,
+          },
+        ],
+        status: "assigned",
+        start_otp: "6374",
+        end_otp: "8190",
+        subtotal: 449,
+        partner_earning: Math.round(449 * 0.85 * 100) / 100,
+        commission: Math.round(449 * 0.15 * 100) / 100,
+        assigned_at: new Date(Date.now() - 14 * 60000).toISOString(),
+        is_transferred: true,
+        transfer_reason: "Primary provider Ramesh Kumar is registered for Electrical services only. Auto-transferred to certified Cleaning Specialist Suresh Yadav.",
+      },
+    ],
+    lines: [
+      {
+        service_id: "serv_elec_01",
+        name: "Fan / Light Installation & Repair",
+        category_id: "cat_elec",
+        category_name: "Electrician",
+        image: IMG.cat_elec,
+        qty: 1,
+        unit_price: 149,
+        addons: [],
+        line_total: 149,
+      },
+      {
+        service_id: "serv_clean_03",
+        name: "Bathroom Intense Cleaning",
+        category_id: "cat_clean",
+        category_name: "Cleaning",
+        image: IMG.cat_clean,
+        qty: 1,
+        unit_price: 449,
+        addons: [],
+        line_total: 449,
+      },
+    ],
+    category_ids: ["cat_elec", "cat_clean"],
+    address: addresses[0],
+    city_id: "city_lucknow",
+    city_name: "Lucknow",
+    mode: "instant",
+    slot_date: now.toISOString().slice(0, 10),
+    slot_time: "ASAP (30-45 min)",
+    pricing: bMultiPricing,
+    payment_method: "upi",
+    payment_status: "paid",
+    amount_paid: bMultiPricing.total,
+    status: "assigned",
+    start_otp: "5182",
+    end_otp: "9241",
+    extras: [],
+    timeline: [
+      { status: "pending", at: new Date(Date.now() - 15 * 60000).toISOString(), note: "Multi-service booking created: Fan Installation + Bathroom Cleaning" },
+      { status: "assigned", at: new Date(Date.now() - 15 * 60000).toISOString(), note: "Fan Installation assigned to Ramesh Kumar (Electrician Pro)" },
+      {
+        status: "transferred",
+        at: new Date(Date.now() - 14 * 60000).toISOString(),
+        note: "⚡ Auto-Transfer: Bathroom Cleaning auto-transferred to Suresh Yadav (Cleaning Specialist) - Ramesh Kumar is not registered for Cleaning",
+      },
+    ],
+    rating: null,
+    review: null,
+    tip: 0,
+    commission_rate: 0.15,
+    commission: Math.round(bMultiPricing.total * 0.15 * 100) / 100,
+    partner_earning: Math.round(bMultiPricing.total * 0.85 * 100) / 100,
+    invoice_no: `GST/2026/${Math.floor(10000 + Math.random() * 90000)}`,
+    created_at: new Date(Date.now() - 15 * 60000).toISOString(),
   });
 
   // 2. Completed historical bookings for demo customer & partner
@@ -1071,7 +1234,13 @@ export function getStoreData(): InitialData {
       saveStoreData(seeded);
       return seeded;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (parsed.cities && Array.isArray(parsed.cities)) {
+      parsed.cities.forEach((c: any) => {
+        if (!c.disabled_service_ids) c.disabled_service_ids = [];
+      });
+    }
+    return parsed;
   } catch (err) {
     console.error("Error reading store from localStorage", err);
     const seeded = generateSeedData();
@@ -1264,26 +1433,35 @@ export const storeApi = {
   },
 
   // Booking Checkout
+  // Booking Checkout
   calculatePricing(
     items: { service: Service; addons: Addon[]; qty: number }[],
     cityId: string,
-    couponCode: string | null
+    couponCode: string | null,
+    forceGstInvoice?: boolean
   ): BookingPricing {
     const store = getStoreData();
-    const city = store.cities.find((c) => c.id === cityId);
+    const city = store.cities.find((c) => c.id === cityId) || store.cities[0];
 
-    let subtotal = 0;
+    let basePrice = 0;
+    let addonsTotal = 0;
+    const baseMultiplier = city?.base_price_multiplier || 1.0;
+
     for (const item of items) {
       const cityOverride = city?.assigned_services.find(
         (as) => as.service_id === item.service.id
       );
-      const unitPrice = cityOverride ? cityOverride.city_price : item.service.price;
-      const addonsPrice = item.addons.reduce((acc, a) => acc + a.price, 0);
-      subtotal += (unitPrice + addonsPrice) * item.qty;
+      const unitPrice = (cityOverride ? cityOverride.city_price : item.service.price) * baseMultiplier;
+      const baseSub = Math.round(unitPrice * item.qty);
+      const addonsSub = item.addons.reduce((acc, a) => acc + a.price, 0) * item.qty;
+      basePrice += baseSub;
+      addonsTotal += addonsSub;
     }
 
+    const subtotal = basePrice + addonsTotal;
+
     let surgeMultiplier = 1.0;
-    if (city?.surge_pricing.is_active) {
+    if (city?.surge_pricing?.is_active) {
       surgeMultiplier = city.surge_pricing.multiplier;
     }
     // Also check active surge rules for matching city or all
@@ -1312,19 +1490,26 @@ export const storeApi = {
     }
     discount = Math.min(discount, subtotal);
 
+    const platformFee = (city?.enable_platform_fee ?? true) ? (city?.platform_fee ?? 29) : 0;
+    const isGstInvoice = forceGstInvoice !== undefined ? forceGstInvoice : (city?.enable_gst_invoice ?? true);
+
     const taxable = Math.max(0, subtotal + surgeAmount - discount);
-    const gstRate = 0.18;
-    const gstAmount = Math.round(taxable * gstRate * 100) / 100;
-    const cgst = gstAmount / 2;
-    const sgst = gstAmount / 2;
-    const total = Math.round((taxable + gstAmount) * 100) / 100;
+    const gstRate = isGstInvoice ? ((city?.gst_rate ?? 18) / 100) : 0;
+    const gstAmount = isGstInvoice ? Math.round(taxable * gstRate * 100) / 100 : 0;
+    const cgst = Math.round((gstAmount / 2) * 100) / 100;
+    const sgst = Math.round((gstAmount - cgst) * 100) / 100;
+    const total = Math.round((taxable + gstAmount + platformFee) * 100) / 100;
 
     return {
+      base_price: basePrice,
+      addons_total: addonsTotal,
       subtotal,
       surge_multiplier: surgeMultiplier,
       surge_amount: surgeAmount,
       discount,
       coupon_code: couponCode,
+      platform_fee: platformFee,
+      is_gst_invoice: isGstInvoice,
       taxable,
       gst_rate: gstRate,
       gst_amount: gstAmount,
@@ -1345,10 +1530,11 @@ export const storeApi = {
     slotTime: string;
     paymentMethod: "upi" | "card" | "wallet" | "cod";
     couponCode: string | null;
+    forceGstInvoice?: boolean;
   }): Booking {
     const store = getStoreData();
     const city = store.cities.find((c) => c.id === params.cityId) || store.cities[0];
-    const pricing = this.calculatePricing(params.items, params.cityId, params.couponCode);
+    const pricing = this.calculatePricing(params.items, params.cityId, params.couponCode, params.forceGstInvoice);
 
     // If wallet payment, check and deduct customer balance
     if (params.paymentMethod === "wallet") {
@@ -1385,31 +1571,172 @@ export const storeApi = {
     });
 
     const categoryIds = Array.from(new Set(bookingLines.map((l) => l.category_id)));
+    const isMultiService = categoryIds.length > 1;
 
-    // Look for matching online partner in the city with required skill
-    const onlineCandidate = store.users.find(
-      (u) =>
-        u.role === "partner" &&
-        u.is_online &&
-        u.kyc_status === "approved" &&
-        u.city_id === city.id &&
-        categoryIds.some((cat) => u.skills?.includes(cat)) &&
-        (u.cod_cash || 0) < (u.cod_limit || 3000)
-    );
+    // Primary online candidate (e.g. for the first category)
+    const primaryCandidate =
+      store.users.find(
+        (u) =>
+          u.role === "partner" &&
+          u.is_online &&
+          u.kyc_status === "approved" &&
+          u.city_id === city.id &&
+          u.skills?.includes(categoryIds[0]) &&
+          (u.cod_cash || 0) < (u.cod_limit || 3000)
+      ) ||
+      store.users.find((u) => u.role === "partner" && u.skills?.includes(categoryIds[0]));
 
     const bookingNo = `HS${Math.floor(100000 + Math.random() * 900000)}`;
     const startOtp = String(Math.floor(1000 + Math.random() * 9000));
     const endOtp = String(Math.floor(1000 + Math.random() * 9000));
 
-    const commissionRate = 0.18;
-    const commission = Math.round(pricing.taxable * commissionRate * 100) / 100;
-    const partnerEarning = Math.round(pricing.taxable * (1 - commissionRate) * 100) / 100;
+    // Partner earning calculation based on City Model: % Commission vs Daily Subscription
+    const partnerModel = city.partner_model || "commission";
+    let commissionRate = 0;
+    let commission = 0;
+    let partnerEarning = 0;
+
+    if (partnerModel === "daily_subscription") {
+      commissionRate = 0;
+      commission = 0;
+      // In daily subscription, partner gets 100% of the invoice earnings!
+      partnerEarning = Math.round(pricing.taxable * 100) / 100;
+    } else {
+      // In commission model, platform charges city.partner_commission_pct % on total invoice
+      commissionRate = (city.partner_commission_pct || 15) / 100;
+      commission = Math.round(pricing.total * commissionRate * 100) / 100;
+      partnerEarning = Math.max(0, Math.round((pricing.total - commission) * 100) / 100);
+    }
+
+    const invoiceNo = pricing.is_gst_invoice
+      ? `GST/2026/${Math.floor(10000 + Math.random() * 90000)}`
+      : `BILL/2026/${Math.floor(10000 + Math.random() * 90000)}`;
+
+    let isMultiProvider = false;
+    let partnerAssignments: PartnerAssignment[] = [];
+    const timelineEvents: BookingTimelineItem[] = [
+      {
+        status: "pending",
+        at: new Date().toISOString(),
+        note: isMultiService
+          ? `Multi-service booking confirmed with ${bookingLines.length} services across ${categoryIds.length} categories`
+          : undefined,
+      },
+    ];
+
+    if (isMultiService) {
+      isMultiProvider = true;
+
+      // Group booking lines by category
+      categoryIds.forEach((catId, catIdx) => {
+        const catLines = bookingLines.filter((l) => l.category_id === catId);
+        const catSubtotal = catLines.reduce((acc, l) => acc + l.line_total, 0);
+        const catName = CATEGORIES.find((c) => c.id === catId)?.name || catId;
+
+        // Proportional earnings calculation
+        const ratio = pricing.subtotal > 0 ? catSubtotal / pricing.subtotal : 1 / categoryIds.length;
+        const catPartnerEarning = Math.round(partnerEarning * ratio * 100) / 100;
+        const catCommission = Math.round(commission * ratio * 100) / 100;
+
+        let assignedPartner: User | undefined;
+        let isTransferred = false;
+        let transferReason: string | undefined;
+
+        if (catIdx === 0 && primaryCandidate) {
+          assignedPartner = primaryCandidate;
+        } else {
+          // Check if primary candidate is registered in this second/third service
+          if (primaryCandidate && primaryCandidate.skills?.includes(catId)) {
+            assignedPartner = primaryCandidate;
+          } else {
+            // USER REQUIREMENT: "agar service provider dono service me rejisterd nahi hai to dusari service kisi dusare provider ko auto transfer ho jaye"
+            isTransferred = true;
+            assignedPartner =
+              store.users.find(
+                (u) =>
+                  u.role === "partner" &&
+                  u.is_online &&
+                  u.kyc_status === "approved" &&
+                  u.city_id === city.id &&
+                  u.id !== primaryCandidate?.id &&
+                  u.skills?.includes(catId) &&
+                  (u.cod_cash || 0) < (u.cod_limit || 3000)
+              ) ||
+              store.users.find(
+                (u) =>
+                  u.role === "partner" &&
+                  u.id !== primaryCandidate?.id &&
+                  u.skills?.includes(catId)
+              ) ||
+              store.users.find((u) => u.role === "partner" && u.skills?.includes(catId));
+
+            const primName = primaryCandidate?.name || "Primary technician";
+            const secName = assignedPartner?.name || "Specialist provider";
+            transferReason = `Primary provider ${primName} is not registered for ${catName} services. Auto-transferred to verified specialist ${secName}.`;
+          }
+        }
+
+        const asgnStartOtp = String(Math.floor(1000 + Math.random() * 9000));
+        const asgnEndOtp = String(Math.floor(1000 + Math.random() * 9000));
+
+        partnerAssignments.push({
+          id: `asgn_${catId}_${Date.now()}_${catIdx}`,
+          partner_id: assignedPartner ? assignedPartner.id : "",
+          partner_name: assignedPartner ? assignedPartner.name : "Searching Specialist...",
+          partner_phone: assignedPartner ? assignedPartner.phone : "1800-SMARTFIX",
+          partner_rating: assignedPartner?.rating || 4.8,
+          partner_avatar: assignedPartner?.avatar || null,
+          category_id: catId,
+          category_name: catName,
+          service_lines: catLines,
+          status: assignedPartner ? "assigned" : "pending",
+          start_otp: asgnStartOtp,
+          end_otp: asgnEndOtp,
+          subtotal: catSubtotal,
+          partner_earning: catPartnerEarning,
+          commission: catCommission,
+          assigned_at: new Date().toISOString(),
+          is_transferred: isTransferred,
+          transfer_reason: transferReason,
+        });
+
+        if (assignedPartner) {
+          if (isTransferred) {
+            timelineEvents.push({
+              status: "transferred",
+              at: new Date().toISOString(),
+              note: `⚡ Auto-Transfer: ${catName} (${catLines.map((l) => l.name).join(", ")}) auto-transferred to ${assignedPartner.name} (${catName} Specialist) - Provider ${primaryCandidate?.name || "assigned"} is not registered in this skill`,
+            });
+          } else {
+            timelineEvents.push({
+              status: "assigned",
+              at: new Date().toISOString(),
+              note: `${catName} (${catLines.map((l) => l.name).join(", ")}) assigned to ${assignedPartner.name}`,
+            });
+          }
+        }
+      });
+    } else {
+      if (primaryCandidate) {
+        timelineEvents.push({
+          status: "assigned",
+          at: new Date().toISOString(),
+          note: `Assigned to ${primaryCandidate.name}`,
+        });
+      }
+    }
 
     const newBooking: Booking = {
       id: `bk_${Date.now()}`,
       booking_no: bookingNo,
       customer_id: params.customerId,
-      partner_id: onlineCandidate ? onlineCandidate.id : null,
+      partner_id: isMultiProvider
+        ? partnerAssignments[0]?.partner_id || primaryCandidate?.id || null
+        : primaryCandidate
+        ? primaryCandidate.id
+        : null,
+      is_multi_provider: isMultiProvider,
+      partner_assignments: isMultiProvider ? partnerAssignments : undefined,
       lines: bookingLines,
       category_ids: categoryIds,
       address: params.address,
@@ -1422,27 +1749,28 @@ export const storeApi = {
       payment_method: params.paymentMethod,
       payment_status: params.paymentMethod === "cod" ? "pending" : "paid",
       amount_paid: params.paymentMethod === "cod" ? 0 : pricing.total,
-      status: onlineCandidate ? "assigned" : "pending",
+      status: isMultiProvider
+        ? partnerAssignments.every((a) => a.status === "assigned")
+          ? "assigned"
+          : "pending"
+        : primaryCandidate
+        ? "assigned"
+        : "pending",
       start_otp: startOtp,
       end_otp: endOtp,
       extras: [],
-      timeline: [
-        { status: "pending", at: new Date().toISOString() },
-        ...(onlineCandidate
-          ? [
-              {
-                status: "assigned",
-                at: new Date().toISOString(),
-                note: `Assigned to ${onlineCandidate.name}`,
-              },
-            ]
-          : []),
-      ],
+      timeline: timelineEvents,
+      rating: null,
+      review: null,
+      tip: 0,
       commission_rate: commissionRate,
       commission,
       partner_earning: partnerEarning,
+      partner_model_applied: partnerModel,
+      partner_daily_subscription_fee: city.partner_daily_subscription_fee || 49,
+      invoice_type: pricing.is_gst_invoice ? "gst_tax_invoice" : "non_gst_invoice",
+      invoice_no: invoiceNo,
       created_at: new Date().toISOString(),
-      partner_origin: onlineCandidate?.location || null,
     };
 
     store.bookings.unshift(newBooking);
@@ -1495,10 +1823,19 @@ export const storeApi = {
     saveStoreData(store);
   },
 
-  startNavigation(bookingId: string) {
+  startNavigation(bookingId: string, partnerId?: string) {
     const store = getStoreData();
     const b = store.bookings.find((x) => x.id === bookingId);
     if (!b) throw new Error("Booking not found");
+
+    if (b.is_multi_provider && b.partner_assignments) {
+      const asgn = b.partner_assignments.find((a) => !partnerId || a.partner_id === partnerId);
+      if (asgn) {
+        asgn.status = "en_route";
+        asgn.en_route_at = new Date().toISOString();
+      }
+    }
+
     b.status = "en_route";
     b.en_route_at = new Date().toISOString();
     b.timeline.push({
@@ -1510,10 +1847,18 @@ export const storeApi = {
     return b;
   },
 
-  markArrived(bookingId: string) {
+  markArrived(bookingId: string, partnerId?: string) {
     const store = getStoreData();
     const b = store.bookings.find((x) => x.id === bookingId);
     if (!b) throw new Error("Booking not found");
+
+    if (b.is_multi_provider && b.partner_assignments) {
+      const asgn = b.partner_assignments.find((a) => !partnerId || a.partner_id === partnerId);
+      if (asgn) {
+        asgn.arrived_at = new Date().toISOString();
+      }
+    }
+
     b.arrived_at = new Date().toISOString();
     b.timeline.push({
       status: "arrived",
@@ -1524,10 +1869,29 @@ export const storeApi = {
     return b;
   },
 
-  verifyStartOtp(bookingId: string, otp: string) {
+  verifyStartOtp(bookingId: string, otp: string, partnerId?: string) {
     const store = getStoreData();
     const b = store.bookings.find((x) => x.id === bookingId);
     if (!b) throw new Error("Booking not found");
+
+    if (b.is_multi_provider && b.partner_assignments) {
+      const asgn = b.partner_assignments.find(
+        (a) => a.start_otp === otp || (otp === "1234" && (!partnerId || a.partner_id === partnerId))
+      );
+      if (asgn) {
+        asgn.status = "in_progress";
+        asgn.arrived_at = asgn.arrived_at || new Date().toISOString();
+        b.status = "in_progress";
+        b.timeline.push({
+          status: "in_progress",
+          at: new Date().toISOString(),
+          note: `${asgn.category_name} service started by ${asgn.partner_name} after Start OTP verification`,
+        });
+        saveStoreData(store);
+        return b;
+      }
+    }
+
     if (b.start_otp !== otp && otp !== "1234") {
       throw new Error("Incorrect start OTP");
     }
@@ -1594,10 +1958,58 @@ export const storeApi = {
     return b;
   },
 
-  verifyEndOtp(bookingId: string, otp: string) {
+  verifyEndOtp(bookingId: string, otp: string, partnerId?: string) {
     const store = getStoreData();
     const b = store.bookings.find((x) => x.id === bookingId);
     if (!b) throw new Error("Booking not found");
+
+    if (b.is_multi_provider && b.partner_assignments) {
+      const asgn = b.partner_assignments.find(
+        (a) => a.end_otp === otp || (otp === "1234" && (!partnerId || a.partner_id === partnerId))
+      );
+      if (asgn) {
+        asgn.status = "completed";
+        asgn.completed_at = new Date().toISOString();
+        b.timeline.push({
+          status: "completed",
+          at: new Date().toISOString(),
+          note: `${asgn.category_name} (${asgn.service_lines.map((l) => l.name).join(", ")}) completed by ${asgn.partner_name}`,
+        });
+
+        // Credit partner pending earnings
+        const p = store.users.find((u) => u.id === asgn.partner_id);
+        if (p) {
+          p.jobs_done = (p.jobs_done || 0) + 1;
+          p.pending_earnings = (p.pending_earnings || 0) + asgn.partner_earning;
+        }
+
+        const allDone = b.partner_assignments.every((a) => a.status === "completed");
+        if (allDone) {
+          b.status = "completed";
+          b.completed_at = new Date().toISOString();
+          b.invoice_no = `GST/2026/${Math.floor(10000 + Math.random() * 90000)}`;
+
+          // 5% cashback reward
+          const cashback = Math.round(b.pricing.subtotal * 0.05 * 100) / 100;
+          const cust = store.users.find((u) => u.id === b.customer_id);
+          if (cust && cashback > 0) {
+            cust.wallet_balance = Math.round((cust.wallet_balance + cashback) * 100) / 100;
+            store.walletTxns.unshift({
+              id: `wtx_${Date.now()}`,
+              user_id: cust.id,
+              amount: cashback,
+              type: "credit",
+              reason: `5% cashback on booking ${b.booking_no}`,
+              booking_id: b.id,
+              created_at: new Date().toISOString(),
+            });
+          }
+        }
+        saveStoreData(store);
+        return b;
+      }
+    }
+
     if (b.end_otp !== otp && otp !== "1234") {
       throw new Error("Incorrect end OTP");
     }
@@ -1609,7 +2021,6 @@ export const storeApi = {
     if (b.payment_method === "cod") {
       b.payment_status = "paid";
       b.amount_paid = b.pricing.total;
-      // add to partner cod_cash
       if (b.partner_id) {
         const p = store.users.find((u) => u.id === b.partner_id);
         if (p) p.cod_cash = (p.cod_cash || 0) + b.pricing.total;
@@ -1641,15 +2052,43 @@ export const storeApi = {
       });
     }
 
-    b.timeline.push({
-      status: "completed",
-      at: new Date().toISOString(),
-      note: "Job successfully completed. Invoice generated.",
-    });
-
     saveStoreData(store);
     return b;
   },
+
+  adminTransferAssignment(bookingId: string, assignmentId: string, toPartnerId: string, reason: string) {
+    const store = getStoreData();
+    const b = store.bookings.find((x) => x.id === bookingId);
+    if (!b) throw new Error("Booking not found");
+    const toPartner = store.users.find((u) => u.id === toPartnerId);
+    if (!toPartner) throw new Error("Target partner not found");
+
+    if (b.partner_assignments) {
+      const asgn = b.partner_assignments.find((a) => a.id === assignmentId);
+      if (asgn) {
+        const oldPartnerName = asgn.partner_name;
+        asgn.partner_id = toPartner.id;
+        asgn.partner_name = toPartner.name;
+        asgn.partner_phone = toPartner.phone;
+        asgn.partner_rating = toPartner.rating || 4.8;
+        asgn.partner_avatar = toPartner.avatar || null;
+        asgn.is_transferred = true;
+        asgn.transfer_reason = reason || `Service transferred from ${oldPartnerName} to ${toPartner.name}`;
+        asgn.assigned_at = new Date().toISOString();
+
+        b.timeline.push({
+          status: "transferred",
+          at: new Date().toISOString(),
+          note: `⚡ Service Transfer: ${asgn.category_name} transferred from ${oldPartnerName} to ${toPartner.name}. Reason: ${reason}`,
+        });
+
+        saveStoreData(store);
+        return b;
+      }
+    }
+    throw new Error("Assignment not found");
+  },
+
 
   rateBooking(bookingId: string, rating: number, review?: string, tip: number = 0) {
     const store = getStoreData();
@@ -1857,19 +2296,230 @@ export const storeApi = {
 
   adminSaveCity(city: City) {
     const store = getStoreData();
-    const idx = store.cities.findIndex((c) => c.id === city.id);
+    const enable_gst = city.customer_settings?.enable_gst ?? city.enable_gst_invoice ?? true;
+    const gst_rate = city.customer_settings?.gst_rate
+      ? (city.customer_settings.gst_rate > 1 ? city.customer_settings.gst_rate : Math.round(city.customer_settings.gst_rate * 100))
+      : (city.gst_rate ?? 18);
+    const enable_platform_fee = city.customer_settings?.enable_platform_fee ?? city.enable_platform_fee ?? true;
+    const platform_fee = city.customer_settings?.platform_fee_amount ?? city.platform_fee ?? 29;
+    const partner_model = city.partner_settings
+      ? (city.partner_settings.enable_commission ? "commission" : "daily_subscription")
+      : (city.partner_model || "commission");
+    const partner_commission_pct = city.partner_settings?.commission_rate
+      ? (city.partner_settings.commission_rate < 1 ? Math.round(city.partner_settings.commission_rate * 100) : city.partner_settings.commission_rate)
+      : (city.partner_commission_pct ?? 15);
+    const partner_daily_subscription_fee = city.partner_settings?.daily_subscription_fee ?? city.partner_daily_subscription_fee ?? 49;
+
+    const normalizedCity: City = {
+      ...city,
+      enable_gst_invoice: enable_gst,
+      gst_rate,
+      enable_platform_fee,
+      platform_fee,
+      partner_model,
+      partner_commission_pct,
+      partner_daily_subscription_fee,
+      customer_settings: {
+        enable_gst,
+        gst_rate,
+        enable_platform_fee,
+        platform_fee_amount: platform_fee,
+        enable_base_price: city.enable_base_price ?? true,
+        base_price_amount: city.base_price ?? 0,
+      },
+      partner_settings: {
+        enable_commission: partner_model === "commission",
+        commission_rate: partner_commission_pct / 100,
+        enable_daily_subscription: partner_model === "daily_subscription",
+        daily_subscription_fee: partner_daily_subscription_fee,
+      },
+    };
+
+    const idx = store.cities.findIndex((c) => c.id === normalizedCity.id);
     if (idx !== -1) {
-      store.cities[idx] = city;
+      store.cities[idx] = normalizedCity;
     } else {
-      store.cities.push(city);
+      store.cities.push(normalizedCity);
     }
     saveStoreData(store);
+  },
+
+  adminToggleCityActive(cityId: string, forcedState?: boolean) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (city) {
+      city.is_active = forcedState !== undefined ? forcedState : !city.is_active;
+      saveStoreData(store);
+    }
+  },
+
+  adminToggleCityGst(cityId: string) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (city) {
+      city.enable_gst_invoice = !city.enable_gst_invoice;
+      if (city.customer_settings) city.customer_settings.enable_gst = city.enable_gst_invoice;
+      if (city.enable_gst_invoice && !city.gst_rate) city.gst_rate = 18;
+      saveStoreData(store);
+    }
+  },
+
+  adminToggleCityPlatformFee(cityId: string) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (city) {
+      city.enable_platform_fee = !city.enable_platform_fee;
+      if (city.customer_settings) city.customer_settings.enable_platform_fee = city.enable_platform_fee;
+      if (city.enable_platform_fee && !city.platform_fee) city.platform_fee = 29;
+      saveStoreData(store);
+    }
+  },
+
+  adminToggleCityPartnerModel(cityId: string) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (city) {
+      city.partner_model = city.partner_model === "daily_subscription" ? "commission" : "daily_subscription";
+      if (city.partner_settings) {
+        city.partner_settings.enable_commission = city.partner_model === "commission";
+        city.partner_settings.enable_daily_subscription = city.partner_model === "daily_subscription";
+      }
+      saveStoreData(store);
+    }
   },
 
   adminDeleteCity(cityId: string) {
     const store = getStoreData();
     store.cities = store.cities.filter((c) => c.id !== cityId);
     saveStoreData(store);
+  },
+
+  // Service Category Management
+  adminSaveCategory(category: Category) {
+    const store = getStoreData();
+    const idx = store.categories.findIndex((c) => c.id === category.id);
+    if (idx !== -1) {
+      store.categories[idx] = category;
+    } else {
+      store.categories.push(category);
+    }
+    saveStoreData(store);
+  },
+
+  adminDeleteCategory(categoryId: string) {
+    const store = getStoreData();
+    store.categories = store.categories.filter((c) => c.id !== categoryId);
+    store.services = store.services.filter((s) => s.category_id !== categoryId);
+    saveStoreData(store);
+  },
+
+  adminToggleCategoryActive(categoryId: string) {
+    const store = getStoreData();
+    const cat = store.categories.find((c) => c.id === categoryId);
+    if (cat) {
+      cat.is_active = cat.is_active === false ? true : false;
+      saveStoreData(store);
+    }
+  },
+
+  // Service / Sub-Service Management
+  adminSaveService(service: Service) {
+    const store = getStoreData();
+    const idx = store.services.findIndex((s) => s.id === service.id);
+    if (idx !== -1) {
+      store.services[idx] = service;
+    } else {
+      store.services.push(service);
+    }
+    saveStoreData(store);
+  },
+
+  adminDeleteService(serviceId: string) {
+    const store = getStoreData();
+    store.services = store.services.filter((s) => s.id !== serviceId);
+    saveStoreData(store);
+  },
+
+  adminToggleServiceActive(serviceId: string) {
+    const store = getStoreData();
+    const s = store.services.find((serv) => serv.id === serviceId);
+    if (s) {
+      s.is_active = s.is_active === false ? true : false;
+      saveStoreData(store);
+    }
+  },
+
+  // City-Specific Service Availability Toggles (Har City me Saare Service Switch Toggle)
+  adminToggleCityService(cityId: string, serviceId: string, forcedState?: boolean) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (!city) return;
+    if (!city.disabled_service_ids) city.disabled_service_ids = [];
+    const isCurrentlyDisabled = city.disabled_service_ids.includes(serviceId);
+    const shouldBeActive = forcedState !== undefined ? forcedState : isCurrentlyDisabled;
+    if (shouldBeActive) {
+      // Remove from disabled list (make active)
+      city.disabled_service_ids = city.disabled_service_ids.filter((id) => id !== serviceId);
+    } else {
+      // Add to disabled list (make disabled in this city)
+      if (!city.disabled_service_ids.includes(serviceId)) {
+        city.disabled_service_ids.push(serviceId);
+      }
+    }
+    saveStoreData(store);
+  },
+
+  adminToggleAllCityServices(cityId: string, enableAll: boolean) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (!city) return;
+    if (enableAll) {
+      city.disabled_service_ids = [];
+    } else {
+      city.disabled_service_ids = store.services.map((s) => s.id);
+    }
+    saveStoreData(store);
+  },
+
+  adminToggleCityCategoryServices(cityId: string, categoryId: string, enableAll: boolean) {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    if (!city) return;
+    if (!city.disabled_service_ids) city.disabled_service_ids = [];
+    const catServiceIds = store.services.filter((s) => s.category_id === categoryId).map((s) => s.id);
+    if (enableAll) {
+      city.disabled_service_ids = city.disabled_service_ids.filter((id) => !catServiceIds.includes(id));
+    } else {
+      for (const sid of catServiceIds) {
+        if (!city.disabled_service_ids.includes(sid)) {
+          city.disabled_service_ids.push(sid);
+        }
+      }
+    }
+    saveStoreData(store);
+  },
+
+  isServiceActiveInCity(serviceId: string, cityId?: string): boolean {
+    const store = getStoreData();
+    const s = store.services.find((x) => x.id === serviceId);
+    if (!s || s.is_active === false) return false;
+    if (!cityId) return true;
+    const city = store.cities.find((c) => c.id === cityId);
+    if (!city || city.is_active === false) return false;
+    if (city.disabled_service_ids && city.disabled_service_ids.includes(serviceId)) {
+      return false;
+    }
+    return true;
+  },
+
+  getActiveServicesForCity(cityId: string): Service[] {
+    const store = getStoreData();
+    const city = store.cities.find((c) => c.id === cityId);
+    return store.services.filter((s) => {
+      if (s.is_active === false) return false;
+      if (city && city.disabled_service_ids && city.disabled_service_ids.includes(s.id)) return false;
+      return true;
+    });
   },
 
   adminSaveSurgeRule(rule: SurgeRule) {
